@@ -3,11 +3,13 @@ package web
 import (
 	"bytes"
 	_ "embed"
+	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"kpk-koe/cmd/web/config"
 	"kpk-koe/global"
 	"kpk-koe/model/domain"
 	"kpk-koe/router"
@@ -52,12 +54,20 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func initConfig() *viper.Viper {
-	buffer := new(bytes.Buffer)
-	buffer.WriteString(configString)
+func initConfig() *config.Config {
+	buffer := bytes.NewBufferString(configString)
 
 	v := viper.New()
 	v.SetConfigType("toml")
+
 	v.ReadConfig(buffer)
-	return v
+	keys := v.AllKeys()
+
+	fmt.Println(keys)
+	conf := &config.Config{}
+	err := v.Unmarshal(conf)
+	if err != nil {
+		fmt.Printf("unable to decode into config struct, %v", err)
+	}
+	return conf
 }

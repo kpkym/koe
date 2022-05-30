@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"fmt"
 	"github.com/dlclark/regexp2"
 	"github.com/mitchellh/go-homedir"
 	"github.com/tidwall/gjson"
@@ -11,6 +12,7 @@ import (
 	"path"
 	"path/filepath"
 	"sort"
+	"strconv"
 	"strings"
 )
 
@@ -86,4 +88,21 @@ func GetNextNasCacheFile() string {
 	})
 
 	return path.Join(dir, files[0].Name())
+}
+
+// GetImgUrl 获取图片url地址
+func GetImgUrl(id, typee string) string {
+	id2 := id[:3] + "000"
+	if IgnoreErr(strconv.Atoi(id[3:])) != 0 {
+		id2 = strconv.Itoa(IgnoreErr(strconv.Atoi(id2)) + 1000)
+	}
+
+	config := global.GetServiceContext().Config
+
+	url := fmt.Sprintf(config.DownloadPattern1, id2, id, typee)
+	if typee == "240x240" || typee == "360x360" {
+		url = fmt.Sprintf(config.DownloadPattern2, id2, id, typee)
+	}
+
+	return url
 }
