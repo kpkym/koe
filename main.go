@@ -6,5 +6,4 @@ import (
 
 func main() {
 	cmd.Execute()
-	//web.Cmd.Run(nil, nil)
 }
