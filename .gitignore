@@ -108,4 +108,4 @@ fabric.properties
 data
 tmp
 colly
-config.toml
+**/config.toml

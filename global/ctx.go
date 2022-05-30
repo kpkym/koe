@@ -1,6 +1,9 @@
 package global
 
-import "gorm.io/gorm"
+import (
+	"github.com/spf13/viper"
+	"gorm.io/gorm"
+)
 
 var (
 	ctx serviceContext
@@ -8,10 +11,11 @@ var (
 
 type serviceContext struct {
 	DB *gorm.DB
+	V  *viper.Viper
 }
 
-func SetServiceContext(db *gorm.DB) {
-	ctx = serviceContext{DB: db}
+func SetServiceContext(db *gorm.DB, v *viper.Viper) {
+	ctx = serviceContext{DB: db, V: v}
 }
 
 func GetServiceContext() serviceContext {
