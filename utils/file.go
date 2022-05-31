@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"kpk-koe/global"
 	"kpk-koe/model/others"
 	"os"
@@ -17,7 +18,7 @@ func BuildTree() []others.Node {
 	parents := make(map[string]*others.Node)
 	walkFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
-			fmt.Println(err)
+			logrus.Error(err)
 			return err
 		}
 

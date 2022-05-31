@@ -73,9 +73,7 @@ func initConfig() *config.Config {
 	v.SetConfigType("toml")
 
 	v.ReadConfig(buffer)
-	keys := v.AllKeys()
 
-	fmt.Println(keys)
 	conf := &config.Config{}
 	err := v.Unmarshal(conf)
 	if err != nil {
