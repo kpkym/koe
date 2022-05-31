@@ -22,6 +22,7 @@ import (
 )
 
 var (
+	c   = initConfig()
 	Cmd = &cobra.Command{
 		Use:   "web",
 		Short: "启动web服务",
@@ -35,13 +36,16 @@ var (
 var configString string
 
 func init() {
-	Cmd.Flags().StringVarP(&global.NasCacheFile, "nasFile", "n", utils.IgnoreErr(homedir.Expand("~/config/koe/nas_koe_data/naskoe_001.json")), "NAS缓存文件")
-	Cmd.Flags().StringVarP(&global.SqliteDataFile, "db", "d", utils.IgnoreErr(homedir.Expand("~/GolandProjects/kpk-koe/data/koe.db")), "sqlite数据库文件")
-	Cmd.Flags().StringVarP(&global.ScanDir, "koe", "k", utils.IgnoreErr(homedir.Expand("~/ooo/koe/scan")), "扫描文件夹")
+	// 初始化配置
+	c = initConfig()
+
+	Cmd.Flags().StringVarP(&global.NasCacheFile, "nasFile", "n", utils.IgnoreErr(homedir.Expand(c.Common.NasCacheFile)), "NAS缓存文件")
+	Cmd.Flags().StringVarP(&global.SqliteDataFile, "db", "d", utils.IgnoreErr(homedir.Expand(c.Common.SqliteDataFile)), "sqlite数据库文件")
+	Cmd.Flags().StringVarP(&global.ScanDir, "koe", "k", utils.IgnoreErr(homedir.Expand(c.Common.ScanDir)), "扫描文件夹")
 }
 
 func web() {
-	global.SetServiceContext(initDB(), initConfig())
+	global.SetServiceContext(initDB(), c)
 
 	serve := router.GetGinServe()
 	serve.StaticFS("/static", http.Dir(global.ScanDir))
@@ -53,7 +57,7 @@ func web() {
 		c.File(imgPath)
 	})
 
-	serve.Run(":8081")
+	serve.Run(":" + c.Common.Port)
 }
 
 func initDB() *gorm.DB {
