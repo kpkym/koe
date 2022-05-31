@@ -17,7 +17,6 @@ import (
 	"kpk-koe/router"
 	"kpk-koe/utils"
 	"net/http"
-	"os"
 	"path/filepath"
 )
 
@@ -49,8 +48,8 @@ func web() {
 
 	serve := router.GetGinServe()
 	serve.StaticFS("/static", http.Dir(global.ScanDir))
-	serve.Group("file").GET("/cover/:type/:id", func(c *gin.Context) {
-		imgPath := filepath.Join(utils.IgnoreErr(os.Getwd()), "data/imgs",
+	serve.Group("/file").GET("/cover/:type/:id", func(c *gin.Context) {
+		imgPath := filepath.Join(utils.GetFileBaseOnPwd("data, imgs"),
 			filepath.Base(utils.GetImgUrl(c.Param("id"), c.Param("type"))))
 
 		logrus.Infof("查找图片: %s", imgPath)

@@ -11,9 +11,9 @@ import (
 func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/works", func(c *gin.Context) {
 		works := make([]dto.Work, 0)
-		for _, rj := range utils.ListMyRj() {
+		for _, code := range utils.ListMyCode() {
 			item := dto.Work{}
-			utils.Unmarshal(service.NewService().Work(rj).Data, &item)
+			utils.Unmarshal(service.NewService().Work(code).Data, &item)
 			works = append(works, item)
 		}
 

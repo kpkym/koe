@@ -13,7 +13,7 @@ func TestName(t *testing.T) {
 }
 
 func TestTrack(t *testing.T) {
-	track := service.NewService().Track("RJ360052")
+	track := service.NewService().Track("360052")
 	marshal, _ := json.Marshal(track)
 
 	fmt.Println(string(marshal))

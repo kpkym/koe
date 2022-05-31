@@ -8,7 +8,6 @@ import (
 	"io/ioutil"
 	"kpk-koe/global"
 	"kpk-koe/model/others"
-	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -34,7 +33,7 @@ func FilePath2Struct[V interface{}](filePath string) []V {
 	return list
 }
 
-func ListRJ(s string) []string {
+func ListCode(s string) []string {
 	regexp2FindAllString := func(re *regexp2.Regexp, s string) []string {
 		var matches []string
 		m := IgnoreErr(re.FindStringMatch(s))
@@ -46,7 +45,7 @@ func ListRJ(s string) []string {
 	}
 
 	keys := make(map[string]bool)
-	list := []string{}
+	var list []string
 	for _, entry := range regexp2FindAllString(compile, s) {
 		if _, value := keys[entry]; !value {
 			keys[entry] = true
@@ -56,7 +55,7 @@ func ListRJ(s string) []string {
 	return list
 }
 
-func ListMyRj() []string {
+func ListMyCode() []string {
 	var b strings.Builder
 
 	for _, po := range ScanDir(global.ScanDir) {
@@ -65,19 +64,11 @@ func ListMyRj() []string {
 		}
 	}
 
-	return ListRJ(b.String())
+	return ListCode(b.String())
 }
 
 func GetNasJson() []others.Po {
 	return FilePath2Struct[others.Po](GetNextNasCacheFile())
-}
-
-func GetFileBaseOnExeFile(filepaths ...string) string {
-	ex := IgnoreErr(os.Executable())
-
-	filepaths = append([]string{filepath.Dir(ex)}, filepaths...)
-
-	return filepath.Join(filepaths...)
 }
 
 func GetNextNasCacheFile() string {

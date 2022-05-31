@@ -51,8 +51,8 @@ func BuildTree() []others.Node {
 			node.LrcUrl = strings.Replace(servePath, ".mp3", ".lrc", 1)
 			node.Duration = 1
 
-			if rjs := ListRJ(servePath); len(rjs) > 0 {
-				node.ImgUrl = fmt.Sprintf("", rjs[0])
+			if codes := ListCode(servePath); len(codes) > 0 {
+				node.ImgUrl = fmt.Sprintf("", codes[0])
 			}
 		}
 		parents[path] = node
@@ -138,4 +138,12 @@ func ScanDir(scanPath string) []others.Po {
 		})
 
 	return pos
+}
+
+func GetFileBaseOnPwd(filepaths ...string) string {
+	wd := IgnoreErr(os.Getwd())
+
+	filepaths = append([]string{filepath.Dir(wd)}, filepaths...)
+
+	return filepath.Join(filepaths...)
 }
