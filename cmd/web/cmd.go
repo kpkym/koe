@@ -4,7 +4,9 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
+	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/go-homedir"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
@@ -15,6 +17,8 @@ import (
 	"kpk-koe/router"
 	"kpk-koe/utils"
 	"net/http"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -41,6 +45,14 @@ func web() {
 
 	serve := router.GetGinServe()
 	serve.StaticFS("/static", http.Dir(global.ScanDir))
+	serve.Group("file").GET("/cover/:type/:id", func(c *gin.Context) {
+		imgPath := filepath.Join(utils.IgnoreErr(os.Getwd()), "data/imgs",
+			filepath.Base(utils.GetImgUrl(c.Param("id"), c.Param("type"))))
+
+		logrus.Infof("查找图片: %s", imgPath)
+		c.File(imgPath)
+	})
+
 	serve.Run(":8081")
 }
 
