@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"fmt"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"kpk-koe/global"
@@ -16,6 +15,8 @@ func BuildTree() []others.Node {
 	var result []*others.Node
 	absRoot := global.ScanDir
 	parents := make(map[string]*others.Node)
+
+	serve := global.GetServiceContext().Config.FlagConfig.Serve
 	walkFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			logrus.Error(err)
@@ -42,17 +43,17 @@ func BuildTree() []others.Node {
 			node.Type = "folder"
 			node.Children = make([]*others.Node, 0)
 		} else {
-			servePath := fmt.Sprintf("http://127.0.0.1:8081/static%s", path[len(global.ScanDir):])
-			node.Type = getType(filepath.Ext(servePath))
-			node.Hash = servePath
+			serveFilePath := filepath.Join(serve, "static", path[len(global.ScanDir):])
+			node.Type = getType(filepath.Ext(serveFilePath))
+			node.Hash = serveFilePath
 			node.WorkTitle = info.Name()
-			node.MediaStreamUrl = servePath
-			node.MediaDownloadUrl = servePath
-			node.LrcUrl = strings.Replace(servePath, ".mp3", ".lrc", 1)
+			node.MediaStreamUrl = serveFilePath
+			node.MediaDownloadUrl = serveFilePath
+			node.LrcUrl = strings.Replace(serveFilePath, ".mp3", ".lrc", 1)
 			node.Duration = 1
 
-			if codes := ListCode(servePath); len(codes) > 0 {
-				node.ImgUrl = fmt.Sprintf("", codes[0])
+			if codes := ListCode(serveFilePath); len(codes) > 0 {
+				node.ImgUrl = filepath.Join(serve, "file", "cover", "z40x240", codes[0])
 			}
 		}
 		parents[path] = node

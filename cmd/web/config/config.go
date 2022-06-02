@@ -8,6 +8,7 @@ type Config struct {
 type FlagConfig struct {
 	Port           string `mapstructure:"port"`
 	Proxy          string `mapstructure:"proxy"`
+	Serve          string `mapstructure:"serve"`
 	NasCacheFile   string `mapstructure:"nascachefile"`
 	SqliteDataFile string `mapstructure:"sqlitedatafile"`
 	ScanDir        string `mapstructure:"scandir"`
