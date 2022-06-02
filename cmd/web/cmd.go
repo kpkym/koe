@@ -3,7 +3,6 @@ package web
 import (
 	"bytes"
 	_ "embed"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
@@ -17,11 +16,11 @@ import (
 	"kpk-koe/router"
 	"kpk-koe/utils"
 	"net/http"
+	"os"
 	"path/filepath"
 )
 
 var (
-	c   = initConfig()
 	Cmd = &cobra.Command{
 		Use:   "web",
 		Short: "启动web服务",
@@ -35,17 +34,24 @@ var (
 var configString string
 
 func init() {
-	// 初始化配置
-	c = initConfig()
+	flagConfig := &config.FlagConfig{}
+	commonConfig := &config.CommonConfig{}
+	initConfig("flag", flagConfig)
+	initConfig("common", commonConfig)
 
-	Cmd.Flags().StringVarP(&global.NasCacheFile, "nasFile", "n", utils.IgnoreErr(homedir.Expand(c.Common.NasCacheFile)), "NAS缓存文件")
-	Cmd.Flags().StringVarP(&global.SqliteDataFile, "db", "d", utils.IgnoreErr(homedir.Expand(c.Common.SqliteDataFile)), "sqlite数据库文件")
-	Cmd.Flags().StringVarP(&global.ScanDir, "koe", "k", utils.IgnoreErr(homedir.Expand(c.Common.ScanDir)), "扫描文件夹")
+	global.SetServiceContext(initDB(), &config.Config{
+		FlagConfig:   *flagConfig,
+		CommonConfig: *commonConfig,
+	})
+
+	flags := Cmd.Flags()
+	flags.StringVarP(&flagConfig.Port, "port", "p", utils.IgnoreErr(homedir.Expand(flagConfig.Port)), "NAS缓存文件")
+	flags.StringVarP(&flagConfig.NasCacheFile, "nasFile", "n", utils.IgnoreErr(homedir.Expand(flagConfig.NasCacheFile)), "NAS缓存文件")
+	flags.StringVarP(&flagConfig.SqliteDataFile, "db", "d", utils.IgnoreErr(homedir.Expand(flagConfig.SqliteDataFile)), "sqlite数据库文件")
+	flags.StringVarP(&flagConfig.ScanDir, "koe", "k", utils.IgnoreErr(homedir.Expand(flagConfig.ScanDir)), "扫描文件夹")
 }
 
 func web() {
-	global.SetServiceContext(initDB(), c)
-
 	serve := router.GetGinServe()
 	serve.StaticFS("/static", http.Dir(global.ScanDir))
 	serve.Group("/file").GET("/cover/:type/:id", func(c *gin.Context) {
@@ -56,7 +62,7 @@ func web() {
 		c.File(imgPath)
 	})
 
-	serve.Run(":" + c.Common.Port)
+	serve.Run(":" + global.GetServiceContext().Config.FlagConfig.Port)
 }
 
 func initDB() *gorm.DB {
@@ -69,18 +75,20 @@ func initDB() *gorm.DB {
 	return db
 }
 
-func initConfig() *config.Config {
+func initConfig[T any](key string, t *T) {
 	buffer := bytes.NewBufferString(configString)
-
 	v := viper.New()
 	v.SetConfigType("toml")
-
 	v.ReadConfig(buffer)
 
-	conf := &config.Config{}
-	err := v.Unmarshal(conf)
-	if err != nil {
-		fmt.Printf("unable to decode into config struct, %v", err)
+	var err error
+	if key != "" {
+		err = v.UnmarshalKey(key, t)
+	} else {
+		err = v.Unmarshal(t)
 	}
-	return conf
+
+	if err != nil {
+		os.Exit(1)
+	}
 }
