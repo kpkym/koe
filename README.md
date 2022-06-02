@@ -2,7 +2,7 @@
 
 - [ ] 台本匹配
 - [ ] 使用 groupcache
-- [ ] colly 代理配置 pflag
+- [x] colly 代理配置 pflag
 - [x] 封面下载
 - [ ] url内网穿透
 - [ ] 分页
