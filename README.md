@@ -1,7 +1,7 @@
 # todo
 
 - [x] 台本匹配
-- [ ] 多音源格式支持
+- [ ] 文件关联UUID
 - [ ] 使用 groupcache
 - [x] colly 代理配置 pflag
 - [x] 封面下载
