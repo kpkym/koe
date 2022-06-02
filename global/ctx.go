@@ -10,12 +10,16 @@ var (
 )
 
 type serviceContext struct {
-	DB     *gorm.DB
 	Config *config.Config
+	DB     *gorm.DB
 }
 
-func SetServiceContext(db *gorm.DB, c *config.Config) {
-	ctx = serviceContext{DB: db, Config: c}
+func SetServiceContext(c *config.Config) {
+	ctx = serviceContext{Config: c}
+}
+
+func AddDB(db *gorm.DB) {
+	ctx.DB = db
 }
 
 func GetServiceContext() serviceContext {

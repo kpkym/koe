@@ -26,6 +26,7 @@ var (
 		Use:   "web",
 		Short: "启动web服务",
 		Run: func(_ *cobra.Command, _ []string) {
+			global.AddDB(initDB())
 			web()
 		},
 	}
@@ -40,7 +41,7 @@ func init() {
 	initConfig("flag", flagConfig)
 	initConfig("common", commonConfig)
 
-	global.SetServiceContext(initDB(), &config.Config{
+	global.SetServiceContext(&config.Config{
 		FlagConfig:   *flagConfig,
 		CommonConfig: *commonConfig,
 	})
@@ -62,7 +63,7 @@ func init() {
 
 func web() {
 	serve := router.GetGinServe()
-	serve.StaticFS("/static", http.Dir(global.ScanDir))
+	serve.StaticFS("/static", http.Dir(global.GetServiceContext().Config.FlagConfig.ScanDir))
 	serve.Group("/file").GET("/cover/:type/:id", func(c *gin.Context) {
 		imgPath := filepath.Join(utils.GetFileBaseOnPwd("data, imgs"),
 			filepath.Base(utils.GetImgUrl(c.Param("id"), c.Param("type"))))
@@ -76,7 +77,7 @@ func web() {
 
 func initDB() *gorm.DB {
 	// 初始化数据库
-	db := utils.IgnoreErr(gorm.Open(sqlite.Open(global.SqliteDataFile), &gorm.Config{}))
+	db := utils.IgnoreErr(gorm.Open(sqlite.Open(global.GetServiceContext().Config.FlagConfig.SqliteDataFile), &gorm.Config{}))
 	// 迁移 schema
 	db.AutoMigrate(&domain.DlDomain{})
 	db.AutoMigrate(&domain.TrackDomain{})

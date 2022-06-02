@@ -58,7 +58,7 @@ func ListCode(s string) []string {
 func ListMyCode() []string {
 	var b strings.Builder
 
-	for _, po := range ScanDir(global.ScanDir) {
+	for _, po := range ScanDir(global.GetServiceContext().Config.FlagConfig.ScanDir) {
 		if po.Type == "D" {
 			b.Write([]byte(po.Path))
 		}
@@ -72,7 +72,7 @@ func GetNasJson() []others.Po {
 }
 
 func GetNextNasCacheFile() string {
-	dir := filepath.Dir(IgnoreErr(homedir.Expand(global.NasCacheFile)))
+	dir := filepath.Dir(IgnoreErr(homedir.Expand(global.GetServiceContext().Config.FlagConfig.NasCacheFile)))
 	files := IgnoreErr(ioutil.ReadDir(dir))
 	sort.Slice(files, func(i, j int) bool {
 		return strings.Compare(files[i].Name(), files[j].Name()) > 0

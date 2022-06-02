@@ -11,9 +11,14 @@ import (
 	"strings"
 )
 
+var (
+	folderType = "folder"
+)
+
 func BuildTree() []others.Node {
 	var result []*others.Node
-	absRoot := global.ScanDir
+
+	absRoot := global.GetServiceContext().Config.ScanDir
 	parents := make(map[string]*others.Node)
 
 	serve := global.GetServiceContext().Config.FlagConfig.Serve
@@ -40,10 +45,10 @@ func BuildTree() []others.Node {
 		}
 
 		if info.IsDir() {
-			node.Type = "folder"
+			node.Type = folderType
 			node.Children = make([]*others.Node, 0)
 		} else {
-			serveFilePath := filepath.Join(serve, "static", path[len(global.ScanDir):])
+			serveFilePath := filepath.Join(serve, "static", path[len(absRoot):])
 			node.Type = getType(filepath.Ext(serveFilePath))
 			node.Hash = serveFilePath
 			node.WorkTitle = info.Name()
@@ -71,11 +76,11 @@ func BuildTree() []others.Node {
 			parent.Children = append(parent.Children, node)
 
 			sort.Slice(parent.Children, func(i, j int) bool {
-				if parent.Children[i].Type == "folder" && parent.Children[j].Type == "folder" {
+				if parent.Children[i].Type == folderType && parent.Children[j].Type == folderType {
 					return strings.Compare(parent.Children[i].Title, parent.Children[j].Title) < 0
-				} else if parent.Children[i].Type == "folder" {
+				} else if parent.Children[i].Type == folderType {
 					return true
-				} else if parent.Children[j].Type == "folder" {
+				} else if parent.Children[j].Type == folderType {
 					return false
 				}
 
@@ -112,6 +117,24 @@ func getTreeHelper(code string, result *[]others.Node, tree *[]others.Node) {
 			getTreeHelper(code, result, c)
 		}
 	}
+}
+
+func FlatTree(nodes []others.Node) []others.Node {
+	fileNodes := make([]others.Node, 0)
+
+	for _, e := range nodes {
+		if e.Type == folderType {
+			for _, i := range FlatTree(Map[*others.Node, others.Node](e.Children, func(item *others.Node) others.Node {
+				return *item
+			})) {
+				fileNodes = append(fileNodes, i)
+			}
+		} else {
+			fileNodes = append(fileNodes, e)
+		}
+	}
+
+	return fileNodes
 }
 
 func ScanDir(scanPath string) []others.Po {
