@@ -1,9 +1,9 @@
 package global
 
 import (
+	"github.com/kpkym/koe/cmd/web/config"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
-	"kpk-koe/cmd/web/config"
 	"os"
 )
 

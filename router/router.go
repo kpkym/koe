@@ -2,7 +2,7 @@ package router
 
 import (
 	"github.com/gin-gonic/gin"
-	"kpk-koe/router/handler"
+	"github.com/kpkym/koe/router/handler"
 	"net/http"
 )
 

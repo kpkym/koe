@@ -2,8 +2,8 @@ package db
 
 import (
 	"errors"
+	"github.com/kpkym/koe/global"
 	"gorm.io/gorm"
-	"kpk-koe/global"
 )
 
 type koeDB[T any] struct {

@@ -2,11 +2,11 @@ package service
 
 import (
 	"encoding/json"
-	"kpk-koe/colly"
-	"kpk-koe/dao/db"
-	"kpk-koe/model/domain"
-	"kpk-koe/model/others"
-	"kpk-koe/utils"
+	"github.com/kpkym/koe/colly"
+	"github.com/kpkym/koe/dao/db"
+	"github.com/kpkym/koe/model/domain"
+	"github.com/kpkym/koe/model/others"
+	"github.com/kpkym/koe/utils"
 )
 
 type service struct{}

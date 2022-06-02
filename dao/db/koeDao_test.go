@@ -3,9 +3,9 @@ package db
 import (
 	"encoding/json"
 	"fmt"
-	"kpk-koe/dao"
-	"kpk-koe/model/domain"
-	"kpk-koe/service"
+	"github.com/kpkym/koe/dao"
+	"github.com/kpkym/koe/model/domain"
+	"github.com/kpkym/koe/service"
 	"testing"
 )
 

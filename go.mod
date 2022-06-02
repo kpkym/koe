@@ -1,4 +1,4 @@
-module kpk-koe
+module github.com/kpkym/koe
 
 go 1.18
 

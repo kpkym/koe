@@ -1,7 +1,7 @@
 package main
 
 import (
-	"kpk-koe/cmd"
+	"github.com/kpkym/koe/cmd"
 )
 
 func main() {

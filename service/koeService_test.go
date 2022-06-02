@@ -2,7 +2,7 @@ package service
 
 import (
 	"fmt"
-	"kpk-koe/utils"
+	"github.com/kpkym/koe/utils"
 	"testing"
 )
 

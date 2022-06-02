@@ -2,10 +2,10 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"kpk-koe/model/dto"
-	"kpk-koe/model/others"
-	"kpk-koe/service"
-	"kpk-koe/utils"
+	"github.com/kpkym/koe/model/dto"
+	"github.com/kpkym/koe/model/others"
+	"github.com/kpkym/koe/service"
+	"github.com/kpkym/koe/utils"
 )
 
 func InitKoeHandler(group *gin.RouterGroup) {

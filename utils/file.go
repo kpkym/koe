@@ -1,10 +1,10 @@
 package utils
 
 import (
+	"github.com/kpkym/koe/global"
+	"github.com/kpkym/koe/model/others"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
-	"kpk-koe/global"
-	"kpk-koe/model/others"
 	"os"
 	"path/filepath"
 	"sort"

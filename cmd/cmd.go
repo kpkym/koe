@@ -1,8 +1,8 @@
 package cmd
 
 import (
+	"github.com/kpkym/koe/cmd/web"
 	"github.com/spf13/cobra"
-	"kpk-koe/cmd/web"
 	"os"
 )
 

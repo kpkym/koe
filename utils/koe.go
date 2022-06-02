@@ -3,11 +3,11 @@ package utils
 import (
 	"fmt"
 	"github.com/dlclark/regexp2"
+	"github.com/kpkym/koe/global"
+	"github.com/kpkym/koe/model/others"
 	"github.com/mitchellh/go-homedir"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
-	"kpk-koe/global"
-	"kpk-koe/model/others"
 	"os"
 	"path"
 	"path/filepath"
