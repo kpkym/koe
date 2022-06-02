@@ -8,6 +8,7 @@ import (
 	"io/ioutil"
 	"kpk-koe/global"
 	"kpk-koe/model/others"
+	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -96,4 +97,33 @@ func GetImgUrl(id, typee string) string {
 	}
 
 	return url
+}
+
+func GetLrc(code, name string, lrc *string) error {
+	tree := GetTree(code, BuildTree(true))
+
+	filter := Filter[others.Node](FlatTree(tree), func(item others.Node) bool {
+		return item.Type != "folder" && filepath.Ext(item.MediaDownloadUrl) == ".lrc"
+	})
+
+	lrcMap := make(map[int]string)
+
+	for _, e := range Map[others.Node](filter, func(item others.Node) string {
+		return item.Abs
+	}) {
+		lrcMap[Longest(name, e)] = e
+	}
+
+	keys := make([]int, 0, len(lrcMap))
+	for k := range lrcMap {
+		keys = append(keys, k)
+	}
+	sort.Ints(keys)
+
+	if len(keys) == 0 {
+		return fmt.Errorf("没有找到lrc文件")
+	}
+
+	*lrc = string(IgnoreErr(os.ReadFile(lrcMap[keys[len(keys)-1]])))
+	return nil
 }

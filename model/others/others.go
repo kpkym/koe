@@ -17,5 +17,6 @@ type Node struct {
 	ImgUrl           string  `json:"imgUrl,omitempty"`
 	LrcUrl           string  `json:"lrcUrl,omitempty"`
 	Duration         float64 `json:"duration,omitempty"`
+	Abs              string  `json:"abs,omitempty"`
 	Children         []*Node `json:"children,omitempty"`
 }

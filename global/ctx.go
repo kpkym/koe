@@ -1,8 +1,10 @@
 package global
 
 import (
+	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"kpk-koe/cmd/web/config"
+	"os"
 )
 
 var (
@@ -23,5 +25,9 @@ func AddDB(db *gorm.DB) {
 }
 
 func GetServiceContext() serviceContext {
+	if ctx.Config == nil {
+		logrus.Error("没有初始化配置类")
+		os.Exit(1)
+	}
 	return ctx
 }

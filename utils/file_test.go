@@ -10,7 +10,7 @@ type NameFile struct {
 }
 
 func TestBuildTree(t *testing.T) {
-	tree := BuildTree()
+	tree := BuildTree(false)
 
 	fmt.Println(Marshal(tree))
 }
