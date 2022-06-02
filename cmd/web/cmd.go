@@ -4,21 +4,17 @@ import (
 	"bytes"
 	_ "embed"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"github.com/kpkym/koe/cmd/web/config"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/router"
 	"github.com/kpkym/koe/utils"
 	"github.com/mitchellh/go-homedir"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"net/http"
 	"os"
-	"path/filepath"
 )
 
 var (
@@ -42,8 +38,8 @@ func init() {
 	initConfig("common", commonConfig)
 
 	global.SetServiceContext(&config.Config{
-		FlagConfig:   *flagConfig,
-		CommonConfig: *commonConfig,
+		FlagConfig:   flagConfig,
+		CommonConfig: commonConfig,
 	})
 
 	flags := Cmd.Flags()
@@ -63,14 +59,6 @@ func init() {
 
 func web() {
 	serve := router.GetGinServe()
-	serve.StaticFS("/static", http.Dir(global.GetServiceContext().Config.FlagConfig.ScanDir))
-	serve.Group("/file").GET("/cover/:type/:id", func(c *gin.Context) {
-		imgPath := filepath.Join(utils.GetFileBaseOnPwd("data, imgs"),
-			filepath.Base(utils.GetImgUrl(c.Param("id"), c.Param("type"))))
-
-		logrus.Infof("查找图片: %s", imgPath)
-		c.File(imgPath)
-	})
 
 	serve.Run(":" + global.GetServiceContext().Config.FlagConfig.Port)
 }

@@ -1,8 +1,8 @@
 package config
 
 type Config struct {
-	FlagConfig
-	CommonConfig
+	*FlagConfig
+	*CommonConfig
 }
 
 type FlagConfig struct {

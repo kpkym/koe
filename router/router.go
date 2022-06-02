@@ -23,6 +23,8 @@ func GetGinServe() *gin.Engine {
 	})
 
 	handler.InitKoeHandler(engin.Group("api"))
+	handler.InitStaticHandler(engin.Group("static"))
+	handler.InitFileHandler(engin.Group("file"))
 
 	engin.GET("ping", func(c *gin.Context) {
 		c.JSON(http.StatusOK, "pong")
