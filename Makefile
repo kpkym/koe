@@ -11,13 +11,6 @@ linux: $(LINUX) ## Build for Linux
 darwin: $(DARWIN) ## Build for Darwin (macOS)
 
 
-pb:
-	protoc --go_out=. data.proto
-
-grpc:
-	protoc --go_out=. --go-grpc_out=. data.proto
-
-
 $(WINDOWS):
 	env GOOS=windows go build -v -o $(WINDOWS) -ldflags="-s -w -X main.version=$(VERSION)" ./main.go
 
