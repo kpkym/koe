@@ -15,4 +15,13 @@ func InitFileHandler(group *gin.RouterGroup) {
 		logrus.Infof("查找图片: %s", imgPath)
 		c.File(imgPath)
 	})
+
+	group.GET("/:uuid", func(c *gin.Context) {
+
+		// todo uuid转实际地址
+		var imgPath string
+
+		logrus.Infof("查找文件: %s", imgPath)
+		c.File(imgPath)
+	})
 }
