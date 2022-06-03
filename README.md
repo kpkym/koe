@@ -2,8 +2,8 @@
 
 - [x] 台本匹配
 - [ ] 文件关联UUID
-- [ ] 使用bigcache
-  - [ ] 使用protobuf序列化反序列化
+- [x] 使用bigcache
+  - [x] 使用protobuf序列化, 反序列化
 - [x] colly 代理配置 pflag
 - [x] 封面下载
 - [ ] 分页
