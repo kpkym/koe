@@ -17,7 +17,7 @@ var (
 )
 
 func Set[T proto.Message](key string, t T) {
-	cache.Set(key, utils.IgnoreErr(proto.Marshal(t)))
+	cache.Set(key, utils.PBMarshal(t))
 }
 
 func Get[T proto.Message](key string, resp T) error {
@@ -26,7 +26,7 @@ func Get[T proto.Message](key string, resp T) error {
 	if errors.Is(err, bigcache.ErrEntryNotFound) {
 		return err
 	}
-	_ = proto.Unmarshal(entry, resp)
 
+	utils.PBUnmarshal(entry, resp)
 	return nil
 }
