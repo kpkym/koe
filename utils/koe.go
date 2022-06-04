@@ -100,7 +100,7 @@ func GetImgUrl(id, typee string) string {
 }
 
 func GetLrc(code, name string, lrc *string) error {
-	tree := GetTree(code, BuildTree(true))
+	tree := GetTree(code, BuildTree())
 
 	filter := Filter[others.Node](FlatTree(tree), func(item others.Node) bool {
 		return item.Type != "folder" && filepath.Ext(item.MediaDownloadUrl) == ".lrc"

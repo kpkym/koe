@@ -15,7 +15,7 @@ var (
 	folderType = "folder"
 )
 
-func BuildTree(withAbs bool) []others.Node {
+func BuildTree() []others.Node {
 	var result []*others.Node
 
 	absRoot := global.GetServiceContext().Config.ScanDir
@@ -56,9 +56,7 @@ func BuildTree(withAbs bool) []others.Node {
 			node.MediaDownloadUrl = serveFilePath
 			node.LrcUrl = strings.Replace(serveFilePath, ".mp3", ".lrc", 1)
 			node.Duration = 1
-			if withAbs {
-				node.Abs = path
-			}
+			node.Abs = path
 
 			if codes := ListCode(serveFilePath); len(codes) > 0 {
 				node.ImgUrl = filepath.Join(serve, "file", "cover", "z40x240", codes[0])

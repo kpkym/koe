@@ -35,7 +35,7 @@ func (s *service) Track(id string) domain.TrackDomain {
 	db.NewKoeDB[domain.TrackDomain]().GetData(model, id, func() domain.TrackDomain {
 		fileSystemTree := &domain.FileSystemTreeDomain{}
 		db.NewKoeDB[domain.FileSystemTreeDomain]().GetData(fileSystemTree, "treeAbsFalse", func() domain.FileSystemTreeDomain {
-			tree := utils.BuildTree(false)
+			tree := utils.BuildTree()
 			marshal, _ := json.Marshal(tree)
 			return domain.FileSystemTreeDomain{Code: "treeAbsFalse", Data: string(marshal)}
 		})
