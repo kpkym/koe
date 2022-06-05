@@ -12,6 +12,6 @@ type Node struct {
 	Title    string  `json:"title,omitempty"`
 	UUID     string  `json:"uuid,omitempty"`
 	Duration float64 `json:"duration,omitempty"`
-	Path     string  `json:"abs,omitempty"`
+	Path     string  `json:"-"`
 	Children []*Node `json:"children,omitempty"`
 }
