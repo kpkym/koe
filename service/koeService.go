@@ -68,3 +68,23 @@ func (s *service) Track(id string) []others.Node {
 	copier.Copy(&resp, cacheHolder.GetChildren())
 	return resp
 }
+
+func (s *service) GetFileFromUUID(id, uuid string) string {
+	trackCacheKey := fmt.Sprintf("track:%s", id)
+	cacheHolder := pb.PBNode{}
+	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
+		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", id)
+		return ""
+	}
+
+	var resp []others.Node
+	copier.Copy(&resp, cacheHolder.GetChildren())
+	for _, e := range utils.FlatTree(resp) {
+		if e.UUID == uuid {
+			return e.Path
+		}
+	}
+
+	logrus.Errorf("uuid获取, 返回为空")
+	return ""
+}
