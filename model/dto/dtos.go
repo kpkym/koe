@@ -15,7 +15,7 @@ type Work struct {
 	CreateDate     string   `json:"create_date"`
 	DlCount        int64    `json:"dl_count"`
 	HasSubtitle    bool     `json:"has_subtitle"`
-	Id             int      `json:"id"`
+	Code           int      `json:"code"`
 	Name           string   `json:"name"`
 	Nsfw           bool     `json:"nsfw"`
 	Price          int64    `json:"price"`

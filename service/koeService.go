@@ -21,14 +21,14 @@ func NewService() *service {
 	return &service{}
 }
 
-func (s *service) Work(id string) domain.DlDomain {
+func (s *service) Work(code string) domain.DlDomain {
 	model := &domain.DlDomain{}
 
 	koeDB := db.NewKoeDB[domain.DlDomain]()
-	koeDB.GetData(model, id, func() domain.DlDomain {
-		if c, err := colly.C(id); err == nil {
+	koeDB.GetData(model, code, func() domain.DlDomain {
+		if c, err := colly.C(code); err == nil {
 			marshal, _ := json.Marshal(c)
-			return domain.DlDomain{Code: id, Data: string(marshal)}
+			return domain.DlDomain{Code: code, Data: string(marshal)}
 		}
 		return domain.DlDomain{Code: "0", Data: ""}
 	})
@@ -36,7 +36,7 @@ func (s *service) Work(id string) domain.DlDomain {
 	return *model
 }
 
-func (s *service) Track(id string) []others.Node {
+func (s *service) Track(code string) []others.Node {
 	cacheHolder := pb.PBNode{}
 	var resp []others.Node
 
@@ -54,12 +54,12 @@ func (s *service) Track(id string) []others.Node {
 
 	copier.Copy(&resp, cacheHolder.GetChildren())
 
-	trackCacheKey := fmt.Sprintf("track:%s", id)
+	trackCacheKey := fmt.Sprintf("track:%s", code)
 	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
-		logrus.Infof("缓存为空 获取目录树: %s", id)
+		logrus.Infof("缓存为空 获取目录树: %s", code)
 
 		var treePB []*pb.PBNode
-		copier.Copy(&treePB, utils.GetTree(id, resp))
+		copier.Copy(&treePB, utils.GetTree(code, resp))
 		cacheHolder.Children = treePB
 		cache.Set(trackCacheKey, &cacheHolder)
 	} else {
@@ -70,11 +70,11 @@ func (s *service) Track(id string) []others.Node {
 	return resp
 }
 
-func (s *service) GetFileFromUUID(id, uuid string) string {
-	trackCacheKey := fmt.Sprintf("track:%s", id)
+func (s *service) GetFileFromUUID(code, uuid string) string {
+	trackCacheKey := fmt.Sprintf("track:%s", code)
 	cacheHolder := pb.PBNode{}
 	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
-		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", id)
+		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", code)
 		return ""
 	}
 
@@ -90,11 +90,11 @@ func (s *service) GetFileFromUUID(id, uuid string) string {
 	return ""
 }
 
-func (s *service) GetLrcFromAudioUUID(id, uuid string) string {
-	trackCacheKey := fmt.Sprintf("track:%s", id)
+func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
+	trackCacheKey := fmt.Sprintf("track:%s", code)
 	cacheHolder := pb.PBNode{}
 	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
-		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", id)
+		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", code)
 		return ""
 	}
 

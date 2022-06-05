@@ -25,9 +25,9 @@ func InitKoeHandler(group *gin.RouterGroup) {
 		c.JSON(200, response)
 	})
 
-	group.GET("/search/:id", func(c *gin.Context) {
+	group.GET("/search/:code", func(c *gin.Context) {
 		works := dto.Work{}
-		utils.Unmarshal(service.NewService().Work(c.Param("id")).Data, &works)
+		utils.Unmarshal(service.NewService().Work(c.Param("code")).Data, &works)
 
 		response := dto.SearchResponse{
 			Pagination: dto.Pagination{CurrentPage: 1, PageSize: 1, TotalCount: 1},
@@ -36,14 +36,14 @@ func InitKoeHandler(group *gin.RouterGroup) {
 		c.JSON(200, response)
 	})
 
-	group.GET("/work/:id", func(c *gin.Context) {
+	group.GET("/work/:code", func(c *gin.Context) {
 		work := dto.Work{}
-		utils.Unmarshal(service.NewService().Work(c.Param("id")).Data, &work)
+		utils.Unmarshal(service.NewService().Work(c.Param("code")).Data, &work)
 		c.JSON(200, work)
 	})
 
-	group.GET("/tracks/:id", func(c *gin.Context) {
-		nodes := service.NewService().Track(c.Param("id"))
+	group.GET("/tracks/:code", func(c *gin.Context) {
+		nodes := service.NewService().Track(c.Param("code"))
 		c.JSON(200, nodes)
 	})
 }

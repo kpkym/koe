@@ -82,17 +82,17 @@ func GetNextNasCacheFile() string {
 }
 
 // GetImgUrl 获取图片url地址
-func GetImgUrl(id, typee string) string {
-	id2 := id[:3] + "000"
-	if IgnoreErr(strconv.Atoi(id[3:])) != 0 {
-		id2 = strconv.Itoa(IgnoreErr(strconv.Atoi(id2)) + 1000)
+func GetImgUrl(code, typee string) string {
+	code2 := code[:3] + "000"
+	if IgnoreErr(strconv.Atoi(code[3:])) != 0 {
+		code2 = strconv.Itoa(IgnoreErr(strconv.Atoi(code2)) + 1000)
 	}
 
 	config := global.GetServiceContext().Config
 
-	url := fmt.Sprintf(config.DownloadPattern1, id2, id, typee)
+	url := fmt.Sprintf(config.DownloadPattern1, code2, code, typee)
 	if typee == "240x240" || typee == "360x360" {
-		url = fmt.Sprintf(config.DownloadPattern2, id2, id, typee)
+		url = fmt.Sprintf(config.DownloadPattern2, code2, code, typee)
 	}
 
 	return url
