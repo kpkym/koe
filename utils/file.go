@@ -1,6 +1,7 @@
 package utils
 
 import (
+	"github.com/google/uuid"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/others"
 	"github.com/mitchellh/go-homedir"
@@ -50,6 +51,7 @@ func BuildTree() []others.Node {
 		} else {
 			serveFilePath := filepath.Join(serve, "static", path[len(absRoot):])
 			node.Type = getType(filepath.Ext(serveFilePath))
+			node.UUID = strings.Replace(uuid.NewString(), "-", "", -1)
 			node.WorkTitle = info.Name()
 			node.MediaStreamUrl = serveFilePath
 			node.MediaDownloadUrl = serveFilePath

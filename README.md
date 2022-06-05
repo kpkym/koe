@@ -3,7 +3,7 @@
 - [ ] 台本匹配
   - [ ] 获取目录树
     - [x] 扫描目录树
-    - [ ] 文件关联UUID
+    - [x] 文件关联UUID
     - [x] 使用bigcache缓存
     - [x] 使用protobuf序列化, 反序列化
     - [ ] 使用copier转换pb和dto
