@@ -10,7 +10,7 @@ import (
 
 func InitFileHandler(group *gin.RouterGroup) {
 	group.GET("/cover/:id/:type", func(c *gin.Context) {
-		imgPath := filepath.Join(utils.GetFileBaseOnPwd("data, imgs"),
+		imgPath := filepath.Join(utils.GetFileBaseOnPwd("data", "imgs"),
 			filepath.Base(utils.GetImgUrl(c.Param("id"), c.Param("type"))))
 
 		logrus.Infof("查找图片: %s", imgPath)

@@ -10,6 +10,7 @@ type Po struct {
 type Node struct {
 	Type     string  `json:"type,omitempty"`
 	Title    string  `json:"title,omitempty"`
+	Code     string  `json:"code,omitempty"`
 	UUID     string  `json:"uuid,omitempty"`
 	Duration float64 `json:"duration,omitempty"`
 	Path     string  `json:"-"`

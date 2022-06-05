@@ -6,8 +6,9 @@ option go_package = "./pb";
 message PBNode{
   string Type = 1;
   string Title = 2;
-  string UUID = 3;
-  double Duration = 4;
-  string Path = 5;
-  repeated PBNode Children = 6;
+  string Code = 3;
+  string UUID = 4;
+  double Duration = 5;
+  string Path = 6;
+  repeated PBNode Children = 7;
 }

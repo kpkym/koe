@@ -49,8 +49,11 @@ func BuildTree() []others.Node {
 			node.Type = folderType
 			node.Children = make([]*others.Node, 0)
 		} else {
-			serveFilePath := filepath.Join(serve, "static", path[len(absRoot):])
-			node.Type = getType(filepath.Ext(serveFilePath))
+			node.Type = getType(filepath.Ext(filepath.Join(serve, "static", path[len(absRoot):])))
+
+			if codes := ListCode(path); len(codes) > 0 {
+				node.Code = codes[0]
+			}
 			node.UUID = strings.Replace(uuid.NewString(), "-", "", -1)
 			node.Duration = 1
 			node.Path = path
@@ -160,8 +163,7 @@ func ScanDir(scanPath string) []others.Po {
 
 func GetFileBaseOnPwd(filepaths ...string) string {
 	wd := IgnoreErr(os.Getwd())
-
-	filepaths = append([]string{filepath.Dir(wd)}, filepaths...)
+	filepaths = append([]string{wd}, filepaths...)
 
 	return filepath.Join(filepaths...)
 }
