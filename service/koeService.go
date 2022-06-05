@@ -2,11 +2,16 @@ package service
 
 import (
 	"encoding/json"
+	"fmt"
+	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/colly"
+	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/dao/db"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/model/others"
+	"github.com/kpkym/koe/model/pb"
 	"github.com/kpkym/koe/utils"
+	"github.com/sirupsen/logrus"
 )
 
 type service struct{}
@@ -30,21 +35,36 @@ func (s *service) Work(id string) domain.DlDomain {
 	return *model
 }
 
-func (s *service) Track(id string) domain.TrackDomain {
-	model := &domain.TrackDomain{}
-	db.NewKoeDB[domain.TrackDomain]().GetData(model, id, func() domain.TrackDomain {
-		fileSystemTree := &domain.FileSystemTreeDomain{}
-		db.NewKoeDB[domain.FileSystemTreeDomain]().GetData(fileSystemTree, "treeAbsFalse", func() domain.FileSystemTreeDomain {
-			tree := utils.BuildTree()
-			marshal, _ := json.Marshal(tree)
-			return domain.FileSystemTreeDomain{Code: "treeAbsFalse", Data: string(marshal)}
-		})
-		var tree []others.Node
-		utils.Unmarshal(fileSystemTree.Data, &tree)
+func (s *service) Track(id string) []others.Node {
+	cacheHolder := pb.PBNode{}
+	var resp []others.Node
 
-		getTree := utils.GetTree(id, tree)
-		marshal, _ := json.Marshal(getTree)
-		return domain.TrackDomain{Code: id, Data: string(marshal)}
-	})
-	return *model
+	treeCacheKey := "tree"
+	if err := cache.Get(treeCacheKey, &cacheHolder); err != nil {
+		logrus.Info("缓存为空 初始化目录树")
+
+		var treePB []*pb.PBNode
+		copier.Copy(&treePB, utils.BuildTree())
+		cacheHolder.Children = treePB
+		cache.Set(treeCacheKey, &cacheHolder)
+	} else {
+		logrus.Infof("缓存命中: %s", treeCacheKey)
+	}
+
+	copier.Copy(&resp, cacheHolder.GetChildren())
+
+	trackCacheKey := fmt.Sprintf("track:%s", id)
+	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
+		logrus.Infof("缓存为空 获取目录树: %s", id)
+
+		var treePB []*pb.PBNode
+		copier.Copy(&treePB, utils.GetTree(id, resp))
+		cacheHolder.Children = treePB
+		cache.Set(trackCacheKey, &cacheHolder)
+	} else {
+		logrus.Infof("缓存命中: %s", trackCacheKey)
+	}
+
+	copier.Copy(&resp, cacheHolder.GetChildren())
+	return resp
 }

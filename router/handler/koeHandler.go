@@ -3,7 +3,6 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kpkym/koe/model/dto"
-	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
 )
@@ -44,8 +43,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/tracks/:id", func(c *gin.Context) {
-		nodes := make([]others.Node, 0)
-		utils.Unmarshal(service.NewService().Track(c.Param("id")).Data, &nodes)
+		nodes := service.NewService().Track(c.Param("id"))
 		c.JSON(200, nodes)
 	})
 }
