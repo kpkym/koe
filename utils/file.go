@@ -50,17 +50,11 @@ func BuildTree() []others.Node {
 		} else {
 			serveFilePath := filepath.Join(serve, "static", path[len(absRoot):])
 			node.Type = getType(filepath.Ext(serveFilePath))
-			node.Hash = serveFilePath
 			node.WorkTitle = info.Name()
 			node.MediaStreamUrl = serveFilePath
 			node.MediaDownloadUrl = serveFilePath
-			node.LrcUrl = strings.Replace(serveFilePath, ".mp3", ".lrc", 1)
 			node.Duration = 1
-			node.Abs = path
-
-			if codes := ListCode(serveFilePath); len(codes) > 0 {
-				node.ImgUrl = filepath.Join(serve, "file", "cover", "z40x240", codes[0])
-			}
+			node.Path = path
 		}
 		parents[path] = node
 		return nil

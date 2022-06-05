@@ -27,14 +27,14 @@ type PBNode struct {
 
 	Type             string    `protobuf:"bytes,1,opt,name=Type,proto3" json:"Type,omitempty"`
 	Title            string    `protobuf:"bytes,2,opt,name=Title,proto3" json:"Title,omitempty"`
-	Hash             string    `protobuf:"bytes,3,opt,name=Hash,proto3" json:"Hash,omitempty"`
+	Hash             string    `protobuf:"bytes,3,opt,name=UUID,proto3" json:"UUID,omitempty"`
 	WorkTitle        string    `protobuf:"bytes,4,opt,name=WorkTitle,proto3" json:"WorkTitle,omitempty"`
 	MediaStreamUrl   string    `protobuf:"bytes,5,opt,name=MediaStreamUrl,proto3" json:"MediaStreamUrl,omitempty"`
 	MediaDownloadUrl string    `protobuf:"bytes,6,opt,name=MediaDownloadUrl,proto3" json:"MediaDownloadUrl,omitempty"`
 	ImgUrl           string    `protobuf:"bytes,7,opt,name=ImgUrl,proto3" json:"ImgUrl,omitempty"`
 	LrcUrl           string    `protobuf:"bytes,8,opt,name=LrcUrl,proto3" json:"LrcUrl,omitempty"`
 	Duration         float64   `protobuf:"fixed64,9,opt,name=Duration,proto3" json:"Duration,omitempty"`
-	Abs              string    `protobuf:"bytes,10,opt,name=Abs,proto3" json:"Abs,omitempty"`
+	Abs              string    `protobuf:"bytes,10,opt,name=Path,proto3" json:"Path,omitempty"`
 	Children         []*PBNode `protobuf:"bytes,11,rep,name=Children,proto3" json:"Children,omitempty"`
 }
 

@@ -109,7 +109,7 @@ func GetLrc(code, name string, lrc *string) error {
 	lrcMap := make(map[int]string)
 
 	for _, e := range Map[others.Node](filter, func(item others.Node) string {
-		return item.Abs
+		return item.Path
 	}) {
 		lrcMap[Longest(name, e)] = e
 	}
