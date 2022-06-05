@@ -54,7 +54,6 @@ func BuildTree() []others.Node {
 			node.UUID = strings.Replace(uuid.NewString(), "-", "", -1)
 			node.WorkTitle = info.Name()
 			node.MediaStreamUrl = serveFilePath
-			node.MediaDownloadUrl = serveFilePath
 			node.Duration = 1
 			node.Path = path
 		}

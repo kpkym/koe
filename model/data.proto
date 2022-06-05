@@ -6,13 +6,10 @@ option go_package = "./pb";
 message PBNode{
   string Type = 1;
   string Title = 2;
-  string Hash = 3;
+  string UUID = 3;
   string WorkTitle = 4;
   string MediaStreamUrl = 5;
-  string MediaDownloadUrl = 6;
-  string ImgUrl = 7;
-  string LrcUrl = 8;
-  double Duration = 9;
-  string Abs = 10;
-  repeated PBNode Children = 11;
+  double Duration = 6;
+  string Path = 7;
+  repeated PBNode Children = 8;
 }
