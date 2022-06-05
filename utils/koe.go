@@ -8,7 +8,6 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
-	"os"
 	"path"
 	"path/filepath"
 	"sort"
@@ -99,10 +98,8 @@ func GetImgUrl(id, typee string) string {
 	return url
 }
 
-func GetLrc(code, name string, lrc *string) error {
-	tree := GetTree(code, BuildTree())
-
-	filter := Filter[others.Node](FlatTree(tree), func(item others.Node) bool {
+func GetLrcPath(name string, nodes []others.Node) (string, error) {
+	filter := Filter[others.Node](FlatTree(nodes), func(item others.Node) bool {
 		return item.Type != "folder" && filepath.Ext(item.Title) == ".lrc"
 	})
 
@@ -121,9 +118,8 @@ func GetLrc(code, name string, lrc *string) error {
 	sort.Ints(keys)
 
 	if len(keys) == 0 {
-		return fmt.Errorf("没有找到lrc文件")
+		return "", fmt.Errorf("没有找到lrc文件")
 	}
 
-	*lrc = string(IgnoreErr(os.ReadFile(lrcMap[keys[len(keys)-1]])))
-	return nil
+	return lrcMap[keys[len(keys)-1]], nil
 }

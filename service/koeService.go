@@ -12,6 +12,7 @@ import (
 	"github.com/kpkym/koe/model/pb"
 	"github.com/kpkym/koe/utils"
 	"github.com/sirupsen/logrus"
+	"path/filepath"
 )
 
 type service struct{}
@@ -87,4 +88,32 @@ func (s *service) GetFileFromUUID(id, uuid string) string {
 
 	logrus.Errorf("uuid获取, 返回为空")
 	return ""
+}
+
+func (s *service) GetLrcFromAudioUUID(id, uuid string) string {
+	trackCacheKey := fmt.Sprintf("track:%s", id)
+	cacheHolder := pb.PBNode{}
+	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
+		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", id)
+		return ""
+	}
+
+	var resp []others.Node
+	var filePath string
+	copier.Copy(&resp, cacheHolder.GetChildren())
+	for _, e := range utils.FlatTree(resp) {
+		if e.UUID == uuid {
+			filePath = e.Path
+			break
+		}
+	}
+
+	if filePath == "" {
+		logrus.Errorf("uuid获取, 返回为空")
+		return ""
+	}
+
+	lrcPath, _ := utils.GetLrcPath(filepath.Base(filePath), resp)
+	logrus.Infof("查找文件: %s的lrc文件. 结果为为: %s", filePath, lrcPath)
+	return lrcPath
 }

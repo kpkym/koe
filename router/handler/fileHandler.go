@@ -17,10 +17,17 @@ func InitFileHandler(group *gin.RouterGroup) {
 		c.File(imgPath)
 	})
 
-	group.GET("/:id/:uuid", func(c *gin.Context) {
-		imgPath := service.NewService().GetFileFromUUID(c.Param("id"), c.Param("uuid"))
+	group.GET("/lrc/:id/:uuid", func(c *gin.Context) {
+		koeService := service.NewService()
+		filePath := koeService.GetLrcFromAudioUUID(c.Param("id"), c.Param("uuid"))
 
-		logrus.Infof("查找文件: %s", imgPath)
-		c.File(imgPath)
+		c.File(filePath)
+	})
+
+	group.GET("/:id/:uuid", func(c *gin.Context) {
+		filePath := service.NewService().GetFileFromUUID(c.Param("id"), c.Param("uuid"))
+
+		logrus.Infof("查找文件: %s", filePath)
+		c.File(filePath)
 	})
 }
