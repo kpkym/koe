@@ -52,8 +52,6 @@ func BuildTree() []others.Node {
 			serveFilePath := filepath.Join(serve, "static", path[len(absRoot):])
 			node.Type = getType(filepath.Ext(serveFilePath))
 			node.UUID = strings.Replace(uuid.NewString(), "-", "", -1)
-			node.WorkTitle = info.Name()
-			node.MediaStreamUrl = serveFilePath
 			node.Duration = 1
 			node.Path = path
 		}
