@@ -23,6 +23,18 @@ func BuildTree() []others.Node {
 	parents := make(map[string]*others.Node)
 
 	serve := global.GetServiceContext().Config.FlagConfig.Serve
+
+	getType := func(ext string) string {
+		switch strings.ToLower(ext) {
+		case ".mp3", ".mp4", ".flac", ".wav", ".m4a":
+			return "audio"
+		case ".lrc", ".txt":
+			return "text"
+		case ".tif", ".jpg", ".jpeg", ".ico", ".tiff", ".gif", ".svg", ".webp", ".png", ".bmp":
+			return "image"
+		}
+		return "other"
+	}
 	walkFunc := func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			logrus.Error(err)
@@ -35,14 +47,6 @@ func BuildTree() []others.Node {
 
 		node := &others.Node{
 			Title: info.Name(),
-		}
-
-		getType := func(ext string) string {
-			if strings.Contains(ext, "mp3") ||
-				strings.Contains(ext, "mp4") {
-				return "audio"
-			}
-			return "file"
 		}
 
 		if info.IsDir() {
