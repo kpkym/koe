@@ -11,7 +11,7 @@ type WorkDomain struct {
 	Nsfw           bool           `json:"nsfw"`
 	Price          int64          `json:"price"`
 	RateAverage2Dp float64        `json:"rate_average_2dp"`
-	RateCount      int            `json:"rate_count"`
+	RateCount      int64          `json:"rate_count"`
 	Release        string         `json:"release"`
 	ReviewCount    int64          `json:"review_count"`
 	Tags           datatypes.JSON `json:"tags"`
