@@ -58,7 +58,8 @@ func (s *service) Track(code string) []others.Node {
 	if cache.GetOrSet(trackCacheKey, &cacheHolder, func() *pb.PBNode {
 		logrus.Infof("缓存为空 获取目录树: %s", code)
 
-		copier.Copy(&cacheHolder.Children, utils.GetTree(code, resp))
+		tree := utils.GetTree(code, resp)
+		copier.Copy(&cacheHolder.Children, tree)
 		return &cacheHolder
 	}) {
 		logrus.Infof("缓存命中: %s", trackCacheKey)
