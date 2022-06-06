@@ -67,9 +67,7 @@ func initDB() *gorm.DB {
 	// 初始化数据库
 	db := utils.IgnoreErr(gorm.Open(sqlite.Open(global.GetServiceContext().Config.FlagConfig.SqliteDataFile), &gorm.Config{}))
 	// 迁移 schema
-	db.AutoMigrate(&domain.DlDomain{})
-	db.AutoMigrate(&domain.TrackDomain{})
-	db.AutoMigrate(&domain.FileSystemTreeDomain{})
+	db.AutoMigrate(&domain.WorkDomain{})
 	return db
 }
 

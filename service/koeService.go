@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/colly"
@@ -21,19 +20,15 @@ func NewService() *service {
 	return &service{}
 }
 
-func (s *service) Work(code string) domain.DlDomain {
-	model := &domain.DlDomain{}
+func (s *service) Work(code string) domain.WorkDomain {
+	resp := domain.WorkDomain{}
 
-	koeDB := db.NewKoeDB[domain.DlDomain]()
-	koeDB.GetData(model, code, func() domain.DlDomain {
-		if c, err := colly.C(code); err == nil {
-			marshal, _ := json.Marshal(c)
-			return domain.DlDomain{Code: code, Data: string(marshal)}
-		}
-		return domain.DlDomain{Code: "0", Data: ""}
+	koeDB := db.NewKoeDB[domain.WorkDomain]()
+	koeDB.GetData(&resp, code, func() (domain.WorkDomain, error) {
+		return colly.C(code)
 	})
 
-	return *model
+	return resp
 }
 
 func (s *service) Track(code string) []others.Node {

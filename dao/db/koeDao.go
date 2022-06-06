@@ -16,14 +16,17 @@ func NewKoeDB[T any]() koeDB[T] {
 	}
 }
 
-func (koe koeDB[T]) GetData(model *T, code string, fn func() T) error {
+func (koe koeDB[T]) GetData(model *T, code string, fn func() (T, error)) error {
 	err := koe.db.First(model, "code = ?", code).Error
 	// 找不到 有缓存方法
 	if errors.Is(err, gorm.ErrRecordNotFound) && fn != nil {
-		insertModel := fn()
-		koe.db.Create(insertModel)
-		*model = insertModel
-		err = nil
+		if insertModel, e := fn(); e == nil {
+			koe.db.Create(insertModel)
+			*model = insertModel
+			e = nil
+		} else {
+			err = e
+		}
 	}
 	return err
 }
