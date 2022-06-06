@@ -1,7 +1,8 @@
 package web
 
 import (
-	_ "embed"
+	"embed"
+	"github.com/gin-gonic/gin"
 	"github.com/kpkym/koe/cmd/web/config"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
@@ -10,6 +11,8 @@ import (
 	"github.com/spf13/cobra"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"io/fs"
+	"net/http"
 	"os"
 	"path/filepath"
 )
@@ -30,6 +33,9 @@ var (
 //go:embed config/config.toml
 var configString string
 
+//go:embed dist
+var dist embed.FS
+
 func init() {
 	flagConfig := &config.FlagConfig{}
 	commonConfig := &config.CommonConfig{}
@@ -46,6 +52,12 @@ func init() {
 
 func web() {
 	serve := router.GetGinServe()
+
+	fs := http.FS(utils.IgnoreErr(fs.Sub(dist, "dist")))
+
+	serve.NoRoute(func(context *gin.Context) {
+		context.FileFromFS("/"+context.Request.RequestURI, fs)
+	})
 
 	serve.Run(":" + global.GetServiceContext().Config.FlagConfig.Port)
 }

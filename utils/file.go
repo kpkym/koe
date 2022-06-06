@@ -19,7 +19,7 @@ var (
 func BuildTree() []others.Node {
 	var result []*others.Node
 
-	absRoot := global.GetServiceContext().Config.ScanDir
+	scanDir := global.GetServiceContext().Config.ScanDir
 	parents := make(map[string]*others.Node)
 
 	getType := func(ext string) string {
@@ -51,7 +51,7 @@ func BuildTree() []others.Node {
 			node.Type = folderType
 			node.Children = make([]*others.Node, 0)
 		} else {
-			node.Type = getType(filepath.Ext(absRoot))
+			node.Type = getType(filepath.Ext(path))
 
 			if codes := ListCode(path); len(codes) > 0 {
 				node.Code = codes[0]
@@ -63,7 +63,7 @@ func BuildTree() []others.Node {
 		return nil
 	}
 
-	filepath.Walk(absRoot, walkFunc)
+	filepath.Walk(scanDir, walkFunc)
 
 	for path, node := range parents {
 		parentPath := filepath.Dir(path)
