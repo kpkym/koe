@@ -22,8 +22,6 @@ func BuildTree() []others.Node {
 	absRoot := global.GetServiceContext().Config.ScanDir
 	parents := make(map[string]*others.Node)
 
-	serve := global.GetServiceContext().Config.FlagConfig.Serve
-
 	getType := func(ext string) string {
 		switch strings.ToLower(ext) {
 		case ".mp3", ".mp4", ".flac", ".wav", ".m4a":
@@ -53,7 +51,7 @@ func BuildTree() []others.Node {
 			node.Type = folderType
 			node.Children = make([]*others.Node, 0)
 		} else {
-			node.Type = getType(filepath.Ext(filepath.Join(serve, "static", path[len(absRoot):])))
+			node.Type = getType(filepath.Ext(absRoot))
 
 			if codes := ListCode(path); len(codes) > 0 {
 				node.Code = codes[0]

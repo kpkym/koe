@@ -2,6 +2,7 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
 	"github.com/sirupsen/logrus"
@@ -10,7 +11,7 @@ import (
 
 func InitFileHandler(group *gin.RouterGroup) {
 	group.GET("/cover/:code/:type", func(c *gin.Context) {
-		imgPath := filepath.Join(utils.GetFileBaseOnPwd("data", "imgs"),
+		imgPath := filepath.Join(utils.GetFileBaseOnPwd(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs"),
 			filepath.Base(utils.GetImgUrl(c.Param("code"), c.Param("type"))))
 
 		logrus.Infof("查找图片: %s", imgPath)

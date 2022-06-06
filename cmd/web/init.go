@@ -35,8 +35,8 @@ func initPlag(flagConfig *config.FlagConfig) {
 	flags := Cmd.Flags()
 	flags.StringVarP(&flagConfig.Port, "port", "p", utils.IgnoreErr(homedir.Expand(flagConfig.Port)), "服务器端口地址")
 	flags.StringVar(&flagConfig.Proxy, "proxy", flagConfig.Proxy, "代理地址: http://127.0.0.1:abcd")
-	flags.StringVarP(&flagConfig.NasCacheFile, "nasFile", "n", utils.IgnoreErr(homedir.Expand(flagConfig.NasCacheFile)), "NAS缓存文件")
-	flags.StringVar(&flagConfig.SqliteDataFile, "db", utils.IgnoreErr(homedir.Expand(flagConfig.SqliteDataFile)), "sqlite数据库文件")
+	// flags.StringVar(&flagConfig.NasCacheFile, "nasFile", utils.IgnoreErr(homedir.Expand(flagConfig.NasCacheFile)), "NAS缓存文件")
+	flags.StringVar(&flagConfig.DataDir, "dataDir", utils.GetFileBaseOnPwd(flagConfig.DataDir), "服务器数据文件夹")
 	flags.StringVar(&flagConfig.ScanDir, "koeDir", utils.IgnoreErr(homedir.Expand(flagConfig.ScanDir)), "扫描文件夹")
 }
 

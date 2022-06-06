@@ -10,6 +10,8 @@ import (
 	"github.com/spf13/cobra"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"os"
+	"path/filepath"
 )
 
 var (
@@ -17,6 +19,8 @@ var (
 		Use:   "web",
 		Short: "启动web服务",
 		Run: func(_ *cobra.Command, _ []string) {
+			os.MkdirAll(global.GetServiceContext().Config.DataDir, 0700)
+			InitTree()
 			global.AddDB(initDB())
 			web()
 		},
@@ -38,7 +42,6 @@ func init() {
 	})
 
 	initPlag(flagConfig)
-	InitTree()
 }
 
 func web() {
@@ -49,7 +52,7 @@ func web() {
 
 func initDB() *gorm.DB {
 	// 初始化数据库
-	db := utils.IgnoreErr(gorm.Open(sqlite.Open(global.GetServiceContext().Config.FlagConfig.SqliteDataFile), &gorm.Config{}))
+	db := utils.IgnoreErr(gorm.Open(sqlite.Open(filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "koe.db")), &gorm.Config{}))
 	// 迁移 schema
 	db.AutoMigrate(&domain.WorkDomain{})
 	return db
