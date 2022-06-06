@@ -59,7 +59,6 @@ func BuildTree() []others.Node {
 				node.Code = codes[0]
 			}
 			node.UUID = strings.Replace(uuid.NewString(), "-", "", -1)
-			node.Duration = 1
 			node.Path = path
 		}
 		parents[path] = node

@@ -8,7 +8,6 @@ message PBNode{
   string Title = 2;
   string Code = 3;
   string UUID = 4;
-  double Duration = 5;
-  string Path = 6;
-  repeated PBNode Children = 7;
+  string Path = 5;
+  repeated PBNode Children = 6;
 }
