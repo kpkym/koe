@@ -30,3 +30,15 @@ func Get[T proto.Message](key string, resp T) error {
 	utils.PBUnmarshal(entry, resp)
 	return nil
 }
+
+func GetOrSet[T proto.Message](key string, resp T, fn func() T) bool {
+	// 存在缓存
+	if err := Get(key, resp); err == nil {
+		return true
+	}
+	// 不存在缓存, 设置缓存
+	Set[T](key, fn())
+	Get(key, resp)
+
+	return false
+}

@@ -12,7 +12,7 @@
   - [x] UUID文件获取
 
 ## 其他
-- [ ] 缓存添加getOrSet方法
+- [x] 缓存添加getOrSet方法
 - [ ] 区分audio方法
 - [ ] 解析audio时长
 - [ ] 分页

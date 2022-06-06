@@ -37,32 +37,30 @@ func (s *service) Work(code string) domain.DlDomain {
 }
 
 func (s *service) Track(code string) []others.Node {
-	cacheHolder := pb.PBNode{}
+	cacheHolder := pb.PBNode{
+		Children: make([]*pb.PBNode, 0),
+	}
 	var resp []others.Node
 
 	treeCacheKey := "tree"
-	if err := cache.Get(treeCacheKey, &cacheHolder); err != nil {
+	if cache.GetOrSet[*pb.PBNode](treeCacheKey, &cacheHolder, func() *pb.PBNode {
 		logrus.Info("缓存为空 初始化目录树")
 
-		var treePB []*pb.PBNode
-		copier.Copy(&treePB, utils.BuildTree())
-		cacheHolder.Children = treePB
-		cache.Set(treeCacheKey, &cacheHolder)
-	} else {
+		copier.Copy(&cacheHolder.Children, utils.BuildTree())
+		return &cacheHolder
+	}) {
 		logrus.Infof("缓存命中: %s", treeCacheKey)
 	}
 
 	copier.Copy(&resp, cacheHolder.GetChildren())
 
 	trackCacheKey := fmt.Sprintf("track:%s", code)
-	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
+	if cache.GetOrSet(trackCacheKey, &cacheHolder, func() *pb.PBNode {
 		logrus.Infof("缓存为空 获取目录树: %s", code)
 
-		var treePB []*pb.PBNode
-		copier.Copy(&treePB, utils.GetTree(code, resp))
-		cacheHolder.Children = treePB
-		cache.Set(trackCacheKey, &cacheHolder)
-	} else {
+		copier.Copy(&cacheHolder.Children, utils.GetTree(code, resp))
+		return &cacheHolder
+	}) {
 		logrus.Infof("缓存命中: %s", trackCacheKey)
 	}
 
