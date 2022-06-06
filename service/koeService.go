@@ -36,15 +36,8 @@ func (s *service) Track(code string) []others.Node {
 		Children: make([]*pb.PBNode, 0),
 	}
 	var resp []others.Node
-
-	treeCacheKey := "tree"
-	if cache.GetOrSet[*pb.PBNode](treeCacheKey, &cacheHolder, func() *pb.PBNode {
-		logrus.Info("缓存为空 初始化目录树")
-
-		copier.Copy(&cacheHolder.Children, utils.BuildTree())
-		return &cacheHolder
-	}) {
-		logrus.Infof("缓存命中: %s", treeCacheKey)
+	if err := cache.Get[*pb.PBNode]("tree", &cacheHolder); err != nil {
+		logrus.Error("获取目录树 缓存未命中")
 	}
 
 	copier.Copy(&resp, cacheHolder.GetChildren())

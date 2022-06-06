@@ -1,20 +1,15 @@
 package web
 
 import (
-	"bytes"
 	_ "embed"
-	"fmt"
 	"github.com/kpkym/koe/cmd/web/config"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/router"
 	"github.com/kpkym/koe/utils"
-	"github.com/mitchellh/go-homedir"
 	"github.com/spf13/cobra"
-	"github.com/spf13/viper"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
-	"os"
 )
 
 var (
@@ -42,19 +37,8 @@ func init() {
 		CommonConfig: commonConfig,
 	})
 
-	flags := Cmd.Flags()
-	flags.StringVarP(&flagConfig.Port, "port", "p", utils.IgnoreErr(homedir.Expand(flagConfig.Port)), "服务器端口地址")
-	flags.StringVar(&flagConfig.Proxy, "proxy", flagConfig.Proxy, "代理地址")
-
-	if flagConfig.Serve != "" {
-		flags.StringVarP(&flagConfig.Serve, "serve", "s", flagConfig.Serve, "服务器地址")
-	} else {
-		flags.StringVarP(&flagConfig.Serve, "serve", "s", fmt.Sprintf("http://%s:%s", utils.GetLocalIp()[0], flagConfig.Port), "服务器地址")
-	}
-
-	flags.StringVarP(&flagConfig.NasCacheFile, "nasFile", "n", utils.IgnoreErr(homedir.Expand(flagConfig.NasCacheFile)), "NAS缓存文件")
-	flags.StringVar(&flagConfig.SqliteDataFile, "db", utils.IgnoreErr(homedir.Expand(flagConfig.SqliteDataFile)), "sqlite数据库文件")
-	flags.StringVar(&flagConfig.ScanDir, "koeDir", utils.IgnoreErr(homedir.Expand(flagConfig.ScanDir)), "扫描文件夹")
+	initPlag(flagConfig)
+	InitTree()
 }
 
 func web() {
@@ -69,22 +53,4 @@ func initDB() *gorm.DB {
 	// 迁移 schema
 	db.AutoMigrate(&domain.WorkDomain{})
 	return db
-}
-
-func initConfig[T any](key string, t *T) {
-	buffer := bytes.NewBufferString(configString)
-	v := viper.New()
-	v.SetConfigType("toml")
-	v.ReadConfig(buffer)
-
-	var err error
-	if key != "" {
-		err = v.UnmarshalKey(key, t)
-	} else {
-		err = v.Unmarshal(t)
-	}
-
-	if err != nil {
-		os.Exit(1)
-	}
 }
