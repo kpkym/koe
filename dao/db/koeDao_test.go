@@ -20,12 +20,12 @@ func TestTrack(t *testing.T) {
 }
 
 func TestCreateData(t *testing.T) {
-	model := &domain.TrackDomain{}
+	model := &domain.WorkDomain{}
 
-	var newDB dao.Dao[domain.TrackDomain] = NewKoeDB[domain.TrackDomain]()
+	var newDB dao.Dao[domain.WorkDomain] = NewKoeDB[domain.WorkDomain]()
 
-	err := newDB.GetData(model, "zzz", func() domain.TrackDomain {
-		return domain.TrackDomain{Code: "zzz", Data: "mmm"}
+	err := newDB.GetData(model, "zzz", func() (domain.WorkDomain, error) {
+		return domain.WorkDomain{Code: 123}, nil
 	})
 
 	fmt.Println(err)
