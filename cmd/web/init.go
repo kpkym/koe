@@ -57,11 +57,20 @@ func InitTree() {
 
 	utils.GoSafe(func() {
 		var dbCodes []string
-		global.GetServiceContext().DB.Table("work_domains").Select("code").Scan(&dbCodes)
+		table := global.GetServiceContext().DB.Table("work_domains")
+		table.Select("code").Scan(&dbCodes)
 
 		codes := utils.Map[string, any](utils.ListMyCode(tree), utils.Str2Any)
 
-		needCrawlCodesSet := hashset.New(codes...).Difference(hashset.New(utils.Map[string, any](dbCodes, utils.Str2Any)...)).Values()
+		fileTreeCodesSet := hashset.New(codes...)
+		dbCodesSet := hashset.New(utils.Map[string, any](dbCodes, utils.Str2Any)...)
+
+		needCrawlCodesSet := fileTreeCodesSet.Difference(dbCodesSet).Values()
+		if needRemoveCodesSet := dbCodesSet.Difference(fileTreeCodesSet).Values(); len(needRemoveCodesSet) > 0 {
+			// 需要删除的
+			table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
+		}
+
 		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
 			logrus.Info("爬虫抓取", needCrawlCodes)
 			c, _ := colly.C(needCrawlCodes)
