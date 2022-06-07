@@ -11,6 +11,7 @@ import (
 	"github.com/spf13/cobra"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 	"io/fs"
 	"net/http"
 	"os"
@@ -64,7 +65,8 @@ func web() {
 
 func initDB() *gorm.DB {
 	// 初始化数据库
-	db := utils.IgnoreErr(gorm.Open(sqlite.Open(filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "koe.db")), &gorm.Config{}))
+	db := utils.IgnoreErr(gorm.Open(sqlite.Open(filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "koe.db")),
+		&gorm.Config{Logger: logger.Default.LogMode(logger.Info)}))
 	// 迁移 schema
 	db.AutoMigrate(&domain.WorkDomain{})
 	return db

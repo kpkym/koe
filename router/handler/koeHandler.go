@@ -2,7 +2,6 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/model/dto"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
@@ -23,11 +22,8 @@ func InitKoeHandler(group *gin.RouterGroup) {
 		c.JSON(200, response)
 	})
 
-	group.GET("/search/:code", func(c *gin.Context) {
-		var works []domain.WorkDomain
-		for _, code := range utils.ListCode(c.Param("code")) {
-			works = append(works, service.NewService().WorkCode(code))
-		}
+	group.GET("/search/:codes", func(c *gin.Context) {
+		works := service.NewService().WorkCodes(utils.ListCode(c.Param("codes")))
 
 		count := len(works)
 		response := dto.SearchResponse{
@@ -38,7 +34,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/work/:code", func(c *gin.Context) {
-		work := service.NewService().WorkCode(c.Param("code"))
+		work := service.NewService().WorkCodes([]string{c.Param("code")})[0]
 		c.JSON(200, work)
 	})
 

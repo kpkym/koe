@@ -26,12 +26,10 @@ func (s *service) WorkPage(pageRequest dto.PageRequest) ([]domain.WorkDomain, in
 	return resp, db.NewKoeDB[domain.WorkDomain](domain.WorkDomain{}).Page(&resp, pageRequest)
 }
 
-func (s *service) WorkCode(code string) domain.WorkDomain {
-	resp := domain.WorkDomain{}
+func (s *service) WorkCodes(codes []string) []domain.WorkDomain {
+	var resp []domain.WorkDomain
 
-	koeDB := db.NewKoeDB[domain.WorkDomain](domain.WorkDomain{})
-	koeDB.GetByCode(&resp, code)
-
+	db.NewKoeDB[[]domain.WorkDomain](domain.WorkDomain{}).ListByCode(&resp, codes)
 	return resp
 }
 
