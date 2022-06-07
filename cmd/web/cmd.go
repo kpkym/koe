@@ -23,8 +23,8 @@ var (
 		Short: "启动web服务",
 		Run: func(_ *cobra.Command, _ []string) {
 			os.MkdirAll(global.GetServiceContext().Config.DataDir, 0700)
-			InitTree()
 			global.AddDB(initDB())
+			InitTree()
 			web()
 		},
 	}

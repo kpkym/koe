@@ -10,10 +10,12 @@ import (
 
 func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/works", func(c *gin.Context) {
-		works := make([]domain.WorkDomain, 0)
-		for _, code := range utils.ListMyCode() {
-			works = append(works, service.NewService().Work(code))
-		}
+		var works []domain.WorkDomain
+
+		// todo 改成分页 直接从数据库拿code信息
+		// for _, code := range utils.ListMyCode() {
+		// 	works = append(works, service.NewService().Work(code))
+		// }
 
 		count := len(works)
 		response := dto.SearchResponse{
@@ -25,11 +27,15 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/search/:code", func(c *gin.Context) {
-		works := service.NewService().Work(c.Param("code"))
+		var works []domain.WorkDomain
+		for _, code := range utils.ListCode(c.Param("code")) {
+			works = append(works, service.NewService().Work(code))
+		}
 
+		count := len(works)
 		response := dto.SearchResponse{
-			Pagination: dto.Pagination{CurrentPage: 1, PageSize: 1, TotalCount: 1},
-			Works:      []domain.WorkDomain{works},
+			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: count},
+			Works:      works,
 		}
 		c.JSON(200, response)
 	})

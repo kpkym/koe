@@ -127,15 +127,14 @@ func FlatTree(nodes []others.Node) []others.Node {
 			})) {
 				fileNodes = append(fileNodes, i)
 			}
-		} else {
-			fileNodes = append(fileNodes, e)
 		}
+		fileNodes = append(fileNodes, e)
 	}
 
 	return fileNodes
 }
 
-func ScanDir(scanPath string) []others.Po {
+func ScanToPo(scanPath string) []others.Po {
 	pos := make([]others.Po, 0)
 
 	filepath.Walk(IgnoreErr(homedir.Expand(scanPath)),

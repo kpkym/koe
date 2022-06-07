@@ -55,12 +55,12 @@ func ListCode(s string) []string {
 	return list
 }
 
-func ListMyCode() []string {
+func ListMyCode(nodes []others.Node) []string {
 	var b strings.Builder
 
-	for _, po := range ScanDir(global.GetServiceContext().Config.FlagConfig.ScanDir) {
-		if po.Type == "D" {
-			b.Write([]byte(po.Path))
+	for _, item := range FlatTree(nodes) {
+		if item.Type == folderType {
+			b.Write([]byte(item.Title))
 		}
 	}
 
