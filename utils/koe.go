@@ -3,6 +3,7 @@ package utils
 import (
 	"fmt"
 	"github.com/dlclark/regexp2"
+	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/others"
 	"github.com/mitchellh/go-homedir"
@@ -44,15 +45,8 @@ func ListCode(s string) []string {
 		return matches
 	}
 
-	keys := make(map[string]bool)
-	var list []string
-	for _, entry := range regexp2FindAllString(compile, s) {
-		if _, value := keys[entry]; !value {
-			keys[entry] = true
-			list = append(list, entry)
-		}
-	}
-	return list
+	codeList := hashset.New(Map(regexp2FindAllString(compile, s), Str2Any)...)
+	return Map(codeList.Values(), Any2Str)
 }
 
 func ListMyCode(nodes []others.Node) []string {

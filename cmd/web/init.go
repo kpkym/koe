@@ -2,7 +2,6 @@ package web
 
 import (
 	"bytes"
-	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/cmd/web/config"
@@ -66,15 +65,10 @@ func InitTree() {
 		var dbCodes []string
 		global.GetServiceContext().DB.Table("work_domains").Select("code").Scan(&dbCodes)
 
-		s2a := func(item string) any {
-			return item
-		}
-		codes := utils.Map[string, any](utils.ListMyCode(tree), s2a)
+		codes := utils.Map[string, any](utils.ListMyCode(tree), utils.Str2Any)
 
-		needCrawlCodesSet := hashset.New(codes...).Difference(hashset.New(utils.Map[string, any](dbCodes, s2a)...)).Values()
-		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, func(item any) string {
-			return fmt.Sprint(item)
-		}); len(needCrawlCodes) > 0 {
+		needCrawlCodesSet := hashset.New(codes...).Difference(hashset.New(utils.Map[string, any](dbCodes, utils.Str2Any)...)).Values()
+		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
 			logrus.Info("爬虫抓取", needCrawlCodes)
 			c, _ := colly.C(needCrawlCodes)
 
