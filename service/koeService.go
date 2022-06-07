@@ -28,8 +28,8 @@ func (s *service) WorkPage(pageRequest dto.PageRequest) ([]domain.WorkDomain, in
 
 func (s *service) WorkCodes(codes []string) []domain.WorkDomain {
 	var resp []domain.WorkDomain
-
 	db.NewKoeDB[[]domain.WorkDomain](domain.WorkDomain{}).ListByCode(&resp, codes)
+
 	return resp
 }
 
@@ -43,7 +43,6 @@ func (s *service) Track(code string) []others.Node {
 	}
 
 	copier.Copy(&resp, cacheHolder.GetChildren())
-
 	trackCacheKey := fmt.Sprintf("track:%s", code)
 	if cache.GetOrSet(trackCacheKey, &cacheHolder, func() *pb.PBNode {
 		logrus.Infof("缓存为空 获取目录树: %s", code)

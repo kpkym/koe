@@ -11,26 +11,22 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/works", func(c *gin.Context) {
 		pageRequest := dto.PageRequest{Size: 5}
 		c.ShouldBindQuery(&pageRequest)
-
 		works, count := service.NewService().WorkPage(pageRequest)
 
-		response := dto.SearchResponse{
+		c.JSON(200, dto.SearchResponse{
 			Pagination: dto.Pagination{CurrentPage: 1, PageSize: pageRequest.Size, TotalCount: count},
 			Works:      works,
-		}
-
-		c.JSON(200, response)
+		})
 	})
 
 	group.GET("/search/:codes", func(c *gin.Context) {
 		works := service.NewService().WorkCodes(utils.ListCode(c.Param("codes")))
-
 		count := len(works)
-		response := dto.SearchResponse{
+
+		c.JSON(200, dto.SearchResponse{
 			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: int64(count)},
 			Works:      works,
-		}
-		c.JSON(200, response)
+		})
 	})
 
 	group.GET("/work/:code", func(c *gin.Context) {
