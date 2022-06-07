@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/allegro/bigcache/v3 v3.0.2
 	github.com/dlclark/regexp2 v1.4.0
+	github.com/emirpasic/gods v1.18.1
 	github.com/gin-gonic/gin v1.7.7
 	github.com/gocolly/colly/v2 v2.1.0
 	github.com/golang/protobuf v1.5.2
