@@ -9,7 +9,7 @@ import (
 
 func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/works", func(c *gin.Context) {
-		pageRequest := dto.PageRequest{Size: 5}
+		pageRequest := dto.PageRequest{Size: 12}
 		c.ShouldBindQuery(&pageRequest)
 		works, count := service.NewService().WorkPage(pageRequest)
 
