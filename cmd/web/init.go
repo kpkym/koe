@@ -2,6 +2,7 @@ package web
 
 import (
 	"bytes"
+	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/cmd/web/config"
@@ -14,8 +15,11 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"io/ioutil"
 	"os"
+	"path/filepath"
 	"runtime/debug"
+	"strings"
 )
 
 func initConfig[T any](key string, t *T) {
@@ -68,7 +72,17 @@ func InitTree() {
 		needCrawlCodesSet := fileTreeCodesSet.Difference(dbCodesSet).Values()
 		if needRemoveCodesSet := dbCodesSet.Difference(fileTreeCodesSet).Values(); len(needRemoveCodesSet) > 0 {
 			// 需要删除的
-			table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
+			utils.GoSafe(func() {
+				table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
+				imageDir := filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs")
+				for _, f := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
+					for _, rmCode := range needRemoveCodesSet {
+						if strings.Contains(f.Name(), fmt.Sprint(rmCode)) {
+							os.Remove(filepath.Join(imageDir, f.Name()))
+						}
+					}
+				}
+			})
 		}
 
 		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
