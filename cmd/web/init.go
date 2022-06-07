@@ -2,15 +2,21 @@ package web
 
 import (
 	"bytes"
+	"fmt"
+	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/cmd/web/config"
+	"github.com/kpkym/koe/colly"
 	"github.com/kpkym/koe/dao/cache"
+	"github.com/kpkym/koe/global"
+	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/model/pb"
 	"github.com/kpkym/koe/utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
 	"os"
+	"runtime/debug"
 )
 
 func initConfig[T any](key string, t *T) {
@@ -44,7 +50,40 @@ func InitTree() {
 	cacheHolder := pb.PBNode{
 		Children: make([]*pb.PBNode, 0),
 	}
-	copier.Copy(&cacheHolder.Children, utils.BuildTree())
 	logrus.Info("初始化目录树")
+	tree := utils.BuildTree()
+
+	copier.Copy(&cacheHolder.Children, tree)
 	cache.Set[*pb.PBNode]("tree", &cacheHolder)
+
+	go func() {
+		defer func() {
+			if p := recover(); p != nil {
+				logrus.Error("爬虫出错: ", string(debug.Stack()))
+			}
+		}()
+
+		var dbCodes []string
+		global.GetServiceContext().DB.Table("work_domains").Select("code").Scan(&dbCodes)
+
+		s2a := func(item string) any {
+			return item
+		}
+		codes := utils.Map[string, any](utils.ListMyCode(tree), s2a)
+
+		needCrawlCodesSet := hashset.New(codes...).Difference(hashset.New(utils.Map[string, any](dbCodes, s2a)...)).Values()
+		needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, func(item any) string {
+			return fmt.Sprint(item)
+		})
+
+		logrus.Info("爬虫抓取", needCrawlCodes)
+		c, _ := colly.C(needCrawlCodes)
+
+		v := make([]*domain.WorkDomain, 0, len(c))
+		for _, value := range c {
+			v = append(v, value)
+		}
+		global.GetServiceContext().DB.Create(&v)
+	}()
+
 }

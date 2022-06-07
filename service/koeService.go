@@ -3,7 +3,6 @@ package service
 import (
 	"fmt"
 	"github.com/jinzhu/copier"
-	"github.com/kpkym/koe/colly"
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/dao/db"
 	"github.com/kpkym/koe/model/domain"
@@ -24,9 +23,11 @@ func (s *service) Work(code string) domain.WorkDomain {
 	resp := domain.WorkDomain{}
 
 	koeDB := db.NewKoeDB[domain.WorkDomain]()
-	koeDB.GetData(&resp, code, func() (domain.WorkDomain, error) {
-		return colly.C(code)
-	})
+	// koeDB.GetData(&resp, code, func() (domain.WorkDomain, error) {
+	// 	return colly.C([]string{code})
+	// })
+
+	fmt.Println(koeDB)
 
 	return resp
 }
