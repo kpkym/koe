@@ -55,13 +55,7 @@ func InitTree() {
 	copier.Copy(&cacheHolder.Children, tree)
 	cache.Set[*pb.PBNode]("tree", &cacheHolder)
 
-	go func() {
-		defer func() {
-			if p := recover(); p != nil {
-				logrus.Error("爬虫出错: ", string(debug.Stack()))
-			}
-		}()
-
+	utils.GoSafe(func() {
 		var dbCodes []string
 		global.GetServiceContext().DB.Table("work_domains").Select("code").Scan(&dbCodes)
 
@@ -78,6 +72,5 @@ func InitTree() {
 			}
 			global.GetServiceContext().DB.Create(&v)
 		}
-	}()
-
+	}, "爬虫出错: ", string(debug.Stack()))
 }
