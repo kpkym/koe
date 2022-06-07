@@ -10,16 +10,13 @@ import (
 
 func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/works", func(c *gin.Context) {
-		var works []domain.WorkDomain
+		pageRequest := dto.PageRequest{Size: 5}
+		c.ShouldBindQuery(&pageRequest)
 
-		// todo 改成分页 直接从数据库拿code信息
-		// for _, code := range utils.ListMyCode() {
-		// 	works = append(works, service.NewService().Work(code))
-		// }
+		works, count := service.NewService().WorkPage(pageRequest)
 
-		count := len(works)
 		response := dto.SearchResponse{
-			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: count},
+			Pagination: dto.Pagination{CurrentPage: 1, PageSize: pageRequest.Size, TotalCount: count},
 			Works:      works,
 		}
 
@@ -29,19 +26,19 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/search/:code", func(c *gin.Context) {
 		var works []domain.WorkDomain
 		for _, code := range utils.ListCode(c.Param("code")) {
-			works = append(works, service.NewService().Work(code))
+			works = append(works, service.NewService().WorkCode(code))
 		}
 
 		count := len(works)
 		response := dto.SearchResponse{
-			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: count},
+			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: int64(count)},
 			Works:      works,
 		}
 		c.JSON(200, response)
 	})
 
 	group.GET("/work/:code", func(c *gin.Context) {
-		work := service.NewService().Work(c.Param("code"))
+		work := service.NewService().WorkCode(c.Param("code"))
 		c.JSON(200, work)
 	})
 

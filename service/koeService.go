@@ -6,6 +6,7 @@ import (
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/dao/db"
 	"github.com/kpkym/koe/model/domain"
+	"github.com/kpkym/koe/model/dto"
 	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/model/pb"
 	"github.com/kpkym/koe/utils"
@@ -19,15 +20,17 @@ func NewService() *service {
 	return &service{}
 }
 
-func (s *service) Work(code string) domain.WorkDomain {
+func (s *service) WorkPage(pageRequest dto.PageRequest) ([]domain.WorkDomain, int64) {
+	var resp []domain.WorkDomain
+
+	return resp, db.NewKoeDB[domain.WorkDomain](domain.WorkDomain{}).Page(&resp, pageRequest)
+}
+
+func (s *service) WorkCode(code string) domain.WorkDomain {
 	resp := domain.WorkDomain{}
 
-	koeDB := db.NewKoeDB[domain.WorkDomain]()
-	// koeDB.GetData(&resp, code, func() (domain.WorkDomain, error) {
-	// 	return colly.C([]string{code})
-	// })
-
-	fmt.Println(koeDB)
+	koeDB := db.NewKoeDB[domain.WorkDomain](domain.WorkDomain{})
+	koeDB.GetByCode(&resp, code)
 
 	return resp
 }

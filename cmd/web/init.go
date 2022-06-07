@@ -72,18 +72,18 @@ func InitTree() {
 		codes := utils.Map[string, any](utils.ListMyCode(tree), s2a)
 
 		needCrawlCodesSet := hashset.New(codes...).Difference(hashset.New(utils.Map[string, any](dbCodes, s2a)...)).Values()
-		needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, func(item any) string {
+		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, func(item any) string {
 			return fmt.Sprint(item)
-		})
+		}); len(needCrawlCodes) > 0 {
+			logrus.Info("爬虫抓取", needCrawlCodes)
+			c, _ := colly.C(needCrawlCodes)
 
-		logrus.Info("爬虫抓取", needCrawlCodes)
-		c, _ := colly.C(needCrawlCodes)
-
-		v := make([]*domain.WorkDomain, 0, len(c))
-		for _, value := range c {
-			v = append(v, value)
+			v := make([]*domain.WorkDomain, 0, len(c))
+			for _, value := range c {
+				v = append(v, value)
+			}
+			global.GetServiceContext().DB.Create(&v)
 		}
-		global.GetServiceContext().DB.Create(&v)
 	}()
 
 }
