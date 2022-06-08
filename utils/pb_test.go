@@ -16,7 +16,7 @@ func TestPBUnmarshal(t *testing.T) {
 		Children: []*pb.PBNode{nodeFile},
 	}
 
-	PBMarshal(&nodeParent)
+	PBMarshal[*pb.PBNode](nodeParent)
 }
 
 func TestPBMarshal(t *testing.T) {
@@ -31,5 +31,5 @@ func TestPBMarshal(t *testing.T) {
 	}
 
 	resp := pb.PBNode{}
-	PBUnmarshal(PBMarshal(&nodeParent), &resp)
+	PBUnmarshal(PBMarshal[*pb.PBNode](nodeParent), &resp)
 }
