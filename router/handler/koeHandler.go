@@ -14,7 +14,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 		works, count := service.NewService().WorkPage(pageRequest)
 
 		c.JSON(200, dto.SearchResponse{
-			Pagination: dto.Pagination{CurrentPage: 1, PageSize: pageRequest.Size, TotalCount: count},
+			Pagination: dto.Pagination{CurrentPage: pageRequest.Page, PageSize: pageRequest.Size, TotalCount: count},
 			Works:      works,
 		})
 	})

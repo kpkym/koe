@@ -15,6 +15,7 @@ import (
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/viper"
+	"gorm.io/gorm"
 	"io/ioutil"
 	"os"
 	"path/filepath"
@@ -60,40 +61,49 @@ func InitTree() {
 	cache.Set[*pb.PBNode]("tree", &cacheHolder)
 
 	utils.GoSafe(func() {
+		imageDir := filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs")
+		table := global.GetServiceContext().DB.Table("work_domains").Session(&gorm.Session{})
+
+		// 检查db图片完整性 图片小于3个需要删除db数据重新抓取
+		keys := make(map[string]int)
+		var lt3Codes []string
+		for _, entry := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
+			if cs := utils.ListCode(entry.Name()); len(cs) != 0 {
+				keys[cs[0]]++
+			}
+		}
+		for k, v := range keys {
+			if v != 3 {
+				lt3Codes = append(lt3Codes, k)
+			}
+		}
+		table.Where("code IN ?", lt3Codes).Delete(&domain.WorkDomain{})
+
+		// 不在目录树的 需要删除db数据和图片
 		var dbCodes []string
-		table := global.GetServiceContext().DB.Table("work_domains")
 		table.Select("code").Scan(&dbCodes)
-
-		codes := utils.Map[string, any](utils.ListMyCode(tree), utils.Str2Any)
-
-		fileTreeCodesSet := hashset.New(codes...)
+		fileTreeCodesSet := hashset.New(utils.Map[string, any](utils.ListMyCode(tree), utils.Str2Any)...)
 		dbCodesSet := hashset.New(utils.Map[string, any](dbCodes, utils.Str2Any)...)
 
 		needCrawlCodesSet := fileTreeCodesSet.Difference(dbCodesSet).Values()
 		if needRemoveCodesSet := dbCodesSet.Difference(fileTreeCodesSet).Values(); len(needRemoveCodesSet) > 0 {
 			// 需要删除的
-			utils.GoSafe(func() {
-				table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
-				imageDir := filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs")
-				for _, f := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
-					for _, rmCode := range needRemoveCodesSet {
-						if strings.Contains(f.Name(), fmt.Sprint(rmCode)) {
-							os.Remove(filepath.Join(imageDir, f.Name()))
-						}
+			table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
+			for _, f := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
+				for _, rmCode := range needRemoveCodesSet {
+					if strings.Contains(f.Name(), fmt.Sprint(rmCode)) {
+						os.Remove(filepath.Join(imageDir, f.Name()))
 					}
 				}
-			})
+			}
 		}
 
 		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
 			logrus.Info("爬虫抓取", needCrawlCodes)
-			c, _ := colly.C(needCrawlCodes)
-
-			v := make([]*domain.WorkDomain, 0, len(c))
-			for _, value := range c {
-				v = append(v, value)
-			}
-			global.GetServiceContext().DB.Create(&v)
+			colly.C(needCrawlCodes, func(workDomain *domain.WorkDomain) {
+				global.GetServiceContext().DB.Create(workDomain)
+			})
 		}
+		logrus.Info("爬虫完成")
 	}, "爬虫出错: ", string(debug.Stack()))
 }

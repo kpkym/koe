@@ -1,6 +1,7 @@
 package db
 
 import (
+	"fmt"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/dto"
 	"gorm.io/gorm"
@@ -22,7 +23,10 @@ func (koe koeDB[T]) ListByCode(model *T, codes []string) error {
 
 func (koe koeDB[T]) Page(model *[]T, pageRequest dto.PageRequest) int64 {
 	var count int64
-	koe.db.Count(&count)                                                                         // 总行数
-	koe.db.Offset((pageRequest.Page - 1) * pageRequest.Size).Limit(pageRequest.Size).Find(model) // 查询pageindex页的数据
+	koe.db.Count(&count)
+	koe.db.Offset((pageRequest.Page - 1) * pageRequest.Size).
+		Limit(pageRequest.Size).
+		Order(fmt.Sprintf("%s %s", pageRequest.Order, pageRequest.Sort)).
+		Find(model)
 	return count
 }
