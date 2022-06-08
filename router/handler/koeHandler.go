@@ -5,16 +5,23 @@ import (
 	"github.com/kpkym/koe/model/dto"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
+	"net/http"
+)
+
+var (
+	pageSize = 12
 )
 
 func InitKoeHandler(group *gin.RouterGroup) {
-	group.GET("/works", func(c *gin.Context) {
-		pageRequest := dto.PageRequest{Size: 12}
+	group.GET("/works/:category/*content", func(c *gin.Context) {
+		pageRequest := dto.PageRequest{Size: pageSize}
 		c.ShouldBindQuery(&pageRequest)
-		works, count := service.NewService().WorkPage(pageRequest)
 
-		c.JSON(200, dto.SearchResponse{
-			Pagination: dto.Pagination{CurrentPage: pageRequest.Page, PageSize: pageRequest.Size, TotalCount: count},
+		works, count := service.NewService().WorkPage(pageRequest, c.Param("category"), c.Param("content")[1:])
+		pagination := dto.Pagination{CurrentPage: pageRequest.Page, PageSize: pageRequest.Size, TotalCount: count}
+
+		c.JSON(http.StatusOK, dto.SearchResponse{
+			Pagination: pagination,
 			Works:      works,
 		})
 	})

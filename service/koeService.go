@@ -11,6 +11,7 @@ import (
 	"github.com/kpkym/koe/model/pb"
 	"github.com/kpkym/koe/utils"
 	"github.com/sirupsen/logrus"
+	"gorm.io/gorm"
 	"path/filepath"
 )
 
@@ -20,10 +21,19 @@ func NewService() *service {
 	return &service{}
 }
 
-func (s *service) WorkPage(pageRequest dto.PageRequest) ([]domain.WorkDomain, int64) {
+func (s *service) WorkPage(pageRequest dto.PageRequest, category, content string) ([]domain.WorkDomain, int64) {
 	var resp []domain.WorkDomain
 
-	return resp, db.NewKoeDB[domain.WorkDomain](domain.WorkDomain{}).Page(&resp, pageRequest)
+	fn := func(db *gorm.DB) {
+		switch category {
+		case "circle":
+			db.Where(fmt.Sprintf("%s = ?", category), content)
+		case "vas", "tags":
+			db.Joins(fmt.Sprintf("join json_each(%s) j", category)).Where("j.value = ?", content)
+		}
+	}
+
+	return resp, db.NewKoeDB[domain.WorkDomain](domain.WorkDomain{}).Page(&resp, pageRequest, fn)
 }
 
 func (s *service) WorkCodes(codes []string) []domain.WorkDomain {
