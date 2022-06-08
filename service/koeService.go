@@ -2,13 +2,11 @@ package service
 
 import (
 	"fmt"
-	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/dao/db"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/model/dto"
 	"github.com/kpkym/koe/model/others"
-	"github.com/kpkym/koe/model/pb"
 	"github.com/kpkym/koe/utils"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -87,28 +85,9 @@ func (s *service) GetFileFromUUID(uuid string) string {
 
 func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
 	trackCacheKey := fmt.Sprintf("track:%s", code)
-	cacheHolder := pb.PBNode{}
-	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
-		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", code)
-		return ""
-	}
+	filePath := cache.GetJSON[string](uuid)
 
-	var resp []*others.Node
-	var filePath string
-	copier.Copy(&resp, cacheHolder.GetChildren())
-	for _, e := range utils.FlatTree(resp) {
-		if e.UUID == uuid {
-			filePath = cache.GetJSON[string](uuid)
-			break
-		}
-	}
-
-	if filePath == "" {
-		logrus.Errorf("uuid获取, 返回为空")
-		return ""
-	}
-
-	lrcPath, _ := utils.GetLrcPath(filepath.Base(filePath), resp, func(uuid string) string {
+	lrcPath, _ := utils.GetLrcPath(filepath.Base(filePath), cache.GetJSON[[]*others.Node](trackCacheKey), func(uuid string) string {
 		return cache.GetJSON[string](uuid)
 	})
 	logrus.Infof("查找文件: %s的lrc文件. 结果为为: %s", filePath, lrcPath)

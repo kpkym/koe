@@ -3,7 +3,6 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kpkym/koe/model/dto"
-	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
 	"net/http"
@@ -20,7 +19,6 @@ func InitKoeHandler(group *gin.RouterGroup) {
 
 		works, count := service.NewService().WorkPage(pageRequest, c.Param("category"), c.Param("content")[1:])
 		pagination := dto.Pagination{CurrentPage: pageRequest.Page, PageSize: pageRequest.Size, TotalCount: count}
-
 		c.JSON(http.StatusOK, dto.SearchResponse{
 			Pagination: pagination,
 			Works:      works,
@@ -30,7 +28,6 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	group.GET("/search/:codes", func(c *gin.Context) {
 		works := service.NewService().WorkCodes(utils.ListCode(c.Param("codes")))
 		count := len(works)
-
 		c.JSON(http.StatusOK, dto.SearchResponse{
 			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: int64(count)},
 			Works:      works,
@@ -44,13 +41,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 
 	group.GET("/tracks/:code", func(c *gin.Context) {
 		code := c.Param("code")
-		// var nodes []*others.Node
-		var nodes []*others.Node = service.NewService().Track(code)
-
-		// cache.GetOrSetJSON[[]*others.Node](fmt.Sprintf("api:tracks:%s", code), &nodes, func() []*others.Node {
-		// 	return service.NewService().Track(code)
-		// })
-
+		var nodes = service.NewService().Track(code)
 		c.JSON(http.StatusOK, nodes)
 	})
 

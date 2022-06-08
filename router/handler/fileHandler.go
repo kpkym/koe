@@ -25,7 +25,7 @@ func InitFileHandler(group *gin.RouterGroup) {
 		c.File(filePath)
 	})
 
-	group.GET("/:code/:uuid", func(c *gin.Context) {
+	group.GET("/:uuid", func(c *gin.Context) {
 		filePath := service.NewService().GetFileFromUUID(c.Param("uuid"))
 		logrus.Infof("查找文件: %s", filePath)
 
