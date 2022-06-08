@@ -19,3 +19,8 @@ type Pagination struct {
 	PageSize    int   `json:"pageSize,omitempty"`
 	TotalCount  int64 `json:"totalCount,omitempty"`
 }
+
+type LabelResponse struct {
+	Name  string `json:"name,omitempty"`
+	Count int64  `json:"count,omitempty"`
+}

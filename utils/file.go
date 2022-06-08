@@ -16,7 +16,7 @@ var (
 	folderType = "folder"
 )
 
-func BuildTree() []others.Node {
+func BuildTree(fn func(string, string)) []*others.Node {
 	var result []*others.Node
 
 	scanDir := global.GetServiceContext().Config.ScanDir
@@ -51,13 +51,13 @@ func BuildTree() []others.Node {
 			node.Type = folderType
 			node.Children = make([]*others.Node, 0)
 		} else {
+			uuid := strings.Replace(uuid.NewString(), "-", "", -1)
 			node.Type = getType(filepath.Ext(path))
-
 			if codes := ListCode(path); len(codes) > 0 {
 				node.Code = codes[0]
 			}
-			node.UUID = strings.Replace(uuid.NewString(), "-", "", -1)
-			node.Path = path
+			node.UUID = uuid
+			fn(uuid, path)
 		}
 		parents[path] = node
 		return nil
@@ -87,44 +87,36 @@ func BuildTree() []others.Node {
 		}
 	}
 
-	var re []others.Node
-	for _, r := range result {
-		re = append(re, *r)
-	}
-
-	return re
+	return result
 }
 
-func GetTree(code string, tree []others.Node) []others.Node {
-	nodes := make([]others.Node, 0)
-	var result = &nodes
-	getTreeHelper(code, result, &tree)
-	return *result
+func GetTree(code string, tree []*others.Node) []*others.Node {
+	nodes := make([]*others.Node, 0)
+	getTreeHelper(code, &nodes, tree)
+	return nodes
 }
 
-func getTreeHelper(code string, result *[]others.Node, tree *[]others.Node) {
-	for _, e := range *tree {
+func getTreeHelper(code string, result *[]*others.Node, tree []*others.Node) {
+	for _, e := range tree {
 		if strings.Contains(e.Title, code) {
 			*result = append(*result, e)
 		} else {
-			nodes := make([]others.Node, 0)
+			nodes := make([]*others.Node, 0)
 			var c = &nodes
 			for _, cc := range e.Children {
-				*c = append(*c, *cc)
+				*c = append(*c, cc)
 			}
-			getTreeHelper(code, result, c)
+			getTreeHelper(code, result, *c)
 		}
 	}
 }
 
-func FlatTree(nodes []others.Node) []others.Node {
-	fileNodes := make([]others.Node, 0)
+func FlatTree(nodes []*others.Node) []*others.Node {
+	fileNodes := make([]*others.Node, 0)
 
 	for _, e := range nodes {
 		if e.Type == folderType {
-			for _, i := range FlatTree(Map[*others.Node, others.Node](e.Children, func(item *others.Node) others.Node {
-				return *item
-			})) {
+			for _, i := range FlatTree(e.Children) {
 				fileNodes = append(fileNodes, i)
 			}
 		}

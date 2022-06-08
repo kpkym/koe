@@ -49,7 +49,7 @@ func ListCode(s string) []string {
 	return Map(codeList.Values(), Any2Str)
 }
 
-func ListMyCode(nodes []others.Node) []string {
+func ListMyCode(nodes []*others.Node) []string {
 	var b strings.Builder
 
 	for _, item := range FlatTree(nodes) {
@@ -92,15 +92,15 @@ func GetImgUrl(code, typee string) string {
 	return url
 }
 
-func GetLrcPath(name string, nodes []others.Node) (string, error) {
-	filter := Filter[others.Node](FlatTree(nodes), func(item others.Node) bool {
+func GetLrcPath(name string, nodes []*others.Node, fn func(string) string) (string, error) {
+	filter := Filter[*others.Node](FlatTree(nodes), func(item *others.Node) bool {
 		return item.Type != "folder" && filepath.Ext(item.Title) == ".lrc"
 	})
 
 	lrcMap := make(map[int]string)
 
-	for _, e := range Map[others.Node](filter, func(item others.Node) string {
-		return item.Path
+	for _, e := range Map[*others.Node](filter, func(item *others.Node) string {
+		return fn(item.UUID)
 	}) {
 		lrcMap[Longest(name, e)] = e
 	}

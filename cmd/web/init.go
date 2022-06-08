@@ -4,13 +4,12 @@ import (
 	"bytes"
 	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
-	"github.com/jinzhu/copier"
 	"github.com/kpkym/koe/cmd/web/config"
 	"github.com/kpkym/koe/colly"
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
-	"github.com/kpkym/koe/model/pb"
+	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/utils"
 	"github.com/mitchellh/go-homedir"
 	"github.com/sirupsen/logrus"
@@ -51,14 +50,11 @@ func initPlag(flagConfig *config.FlagConfig) {
 }
 
 func InitTree() {
-	cacheHolder := pb.PBNode{
-		Children: make([]*pb.PBNode, 0),
-	}
 	logrus.Info("初始化目录树")
-	tree := utils.BuildTree()
-
-	copier.Copy(&cacheHolder.Children, tree)
-	cache.Set[*pb.PBNode]("tree", &cacheHolder)
+	tree := utils.BuildTree(func(uuid, path string) {
+		cache.SetJSON[string](uuid, path)
+	})
+	cache.SetJSON[[]*others.Node]("tree", tree)
 
 	utils.GoSafe(func() {
 		imageDir := filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs")

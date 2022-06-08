@@ -43,49 +43,46 @@ func (s *service) WorkCodes(codes []string) []domain.WorkDomain {
 	return resp
 }
 
-func (s *service) Track(code string) []others.Node {
-	cacheHolder := pb.PBNode{
-		Children: make([]*pb.PBNode, 0),
-	}
-	var resp []others.Node
-	if err := cache.Get[*pb.PBNode]("tree", &cacheHolder); err != nil {
-		logrus.Error("获取目录树 缓存未命中")
-	}
+func (s *service) Labels(category string) []dto.LabelResponse {
+	var results []dto.LabelResponse
 
-	copier.Copy(&resp, cacheHolder.GetChildren())
+	cache.GetOrSetJSON[[]dto.LabelResponse](fmt.Sprintf("category:%s", category), &results, func() []dto.LabelResponse {
+		var fn func(g *gorm.DB)
+		switch category {
+		case "vas", "tags":
+			fn = func(g *gorm.DB) {
+				g.Select("j.value name, COUNT(1) count").
+					Joins(fmt.Sprintf("join json_each(%s) j", category)).
+					Group("j.value").Order("count DESC")
+			}
+		default:
+			fn = func(g *gorm.DB) {
+				g.Select(fmt.Sprintf("%s name, COUNT(1) count", category)).Group(category).Order("count DESC")
+			}
+		}
+		db.NewKoeDB[[]domain.WorkDomain](domain.WorkDomain{}).RunRow(&results, fn)
+		return results
+	})
+
+	return results
+}
+
+func (s *service) Track(code string) []*others.Node {
+	var resp = cache.GetJSON[[]*others.Node]("tree")
+
 	trackCacheKey := fmt.Sprintf("track:%s", code)
-	if cache.GetOrSet(trackCacheKey, &cacheHolder, func() *pb.PBNode {
+	if cache.GetOrSetJSON[[]*others.Node](trackCacheKey, &resp, func() []*others.Node {
 		logrus.Infof("缓存为空 获取目录树: %s", code)
-
-		tree := utils.GetTree(code, resp)
-		copier.Copy(&cacheHolder.Children, tree)
-		return &cacheHolder
+		return utils.GetTree(code, resp)
 	}) {
 		logrus.Infof("缓存命中: %s", trackCacheKey)
 	}
 
-	copier.Copy(&resp, cacheHolder.GetChildren())
 	return resp
 }
 
-func (s *service) GetFileFromUUID(code, uuid string) string {
-	trackCacheKey := fmt.Sprintf("track:%s", code)
-	cacheHolder := pb.PBNode{}
-	if err := cache.Get(trackCacheKey, &cacheHolder); err != nil {
-		logrus.Errorf("uuid获取, 缓存为空 获取目录树: %s", code)
-		return ""
-	}
-
-	var resp []others.Node
-	copier.Copy(&resp, cacheHolder.GetChildren())
-	for _, e := range utils.FlatTree(resp) {
-		if e.UUID == uuid {
-			return e.Path
-		}
-	}
-
-	logrus.Errorf("uuid获取, 返回为空")
-	return ""
+func (s *service) GetFileFromUUID(uuid string) string {
+	return cache.GetJSON[string](uuid)
 }
 
 func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
@@ -96,12 +93,12 @@ func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
 		return ""
 	}
 
-	var resp []others.Node
+	var resp []*others.Node
 	var filePath string
 	copier.Copy(&resp, cacheHolder.GetChildren())
 	for _, e := range utils.FlatTree(resp) {
 		if e.UUID == uuid {
-			filePath = e.Path
+			filePath = cache.GetJSON[string](uuid)
 			break
 		}
 	}
@@ -111,7 +108,9 @@ func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
 		return ""
 	}
 
-	lrcPath, _ := utils.GetLrcPath(filepath.Base(filePath), resp)
+	lrcPath, _ := utils.GetLrcPath(filepath.Base(filePath), resp, func(uuid string) string {
+		return cache.GetJSON[string](uuid)
+	})
 	logrus.Infof("查找文件: %s的lrc文件. 结果为为: %s", filePath, lrcPath)
 	return lrcPath
 }
