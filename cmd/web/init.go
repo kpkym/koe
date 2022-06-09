@@ -52,9 +52,9 @@ func initPlag(flagConfig *config.FlagConfig) {
 func InitTree() {
 	logrus.Info("初始化目录树")
 	tree := utils.BuildTree(func(uuid, path string) {
-		cache.SetJSON[string](uuid, path)
+		cache.NewMapCache[string]().Set(uuid, path)
 	})
-	cache.SetJSON[[]*others.Node]("tree", tree)
+	cache.NewMapCache[[]*others.Node]().Set("tree", tree)
 
 	utils.GoSafe(func() {
 		imageDir := filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs")
