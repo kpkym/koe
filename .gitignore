@@ -5,3 +5,4 @@ colly
 dist
 **/config.toml
 *_kpk*
+main
