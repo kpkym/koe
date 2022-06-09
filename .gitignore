@@ -110,3 +110,4 @@ tmp
 colly
 dist
 **/config.toml
+*_kpk*

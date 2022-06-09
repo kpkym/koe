@@ -16,7 +16,7 @@ func (m mapCache[T]) Get(key string) (value T, ok bool) {
 	if v, ok := mapCacheMap[key]; ok {
 		return reflect.ValueOf(v).Interface().(T), true
 	}
-	logError()
+	// logError()
 	return *new(T), false
 }
 
