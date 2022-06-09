@@ -54,7 +54,7 @@ func ListMyCode(nodes []*others.Node) []string {
 
 	for _, item := range FlatTree(nodes) {
 		if item.Type == FolderType {
-			b.Write([]byte(item.Title))
+			b.WriteString(item.Title + " ")
 		}
 	}
 

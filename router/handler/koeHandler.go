@@ -27,7 +27,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 		})
 	})
 
-	group.GET("/search/:codes", func(c *gin.Context) {
+	group.GET("/search/*codes", func(c *gin.Context) {
 		works := service.NewService().WorkCodes(utils.ListCode(c.Param("codes")))
 		count := len(works)
 		c.JSON(http.StatusOK, dto.SearchResponse{

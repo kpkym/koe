@@ -44,7 +44,7 @@ func initPlag(flagConfig *config.FlagConfig) {
 	flags := Cmd.Flags()
 	flags.StringVarP(&flagConfig.Port, "port", "p", utils.IgnoreErr(homedir.Expand(flagConfig.Port)), "服务器端口地址")
 	flags.StringVar(&flagConfig.Proxy, "proxy", flagConfig.Proxy, "代理地址: http://127.0.0.1:abcd")
-	// flags.StringVar(&flagConfig.NasCacheFile, "nasFile", utils.IgnoreErr(homedir.Expand(flagConfig.NasCacheFile)), "NAS缓存文件")
+	flags.StringVar(&flagConfig.NasCacheFile, "nasFile", utils.IgnoreErr(homedir.Expand(flagConfig.NasCacheFile)), "NAS缓存文件")
 	flags.StringVar(&flagConfig.DataDir, "dataDir", utils.GetFileBaseOnPwd(flagConfig.DataDir), "服务器数据文件夹")
 	flags.StringVar(&flagConfig.ScanDir, "koeDir", utils.IgnoreErr(homedir.Expand(flagConfig.ScanDir)), "扫描文件夹")
 }
@@ -54,28 +54,30 @@ func InitTree() {
 	tree := BuildTree()
 	cache.NewMapCache[[]*others.Node]().Set("tree", tree)
 
-	// cleanUp(tree)
+	cleanUp(tree, true)
 }
 
-func cleanUp(tree []*others.Node) {
+func cleanUp(tree []*others.Node, clean bool) {
 	utils.GoSafe(func() {
 		imageDir := filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "imgs")
 		table := global.GetServiceContext().DB.Table("work_domains").Session(&gorm.Session{})
 
-		// 检查db图片完整性 图片小于3个需要删除db数据重新抓取
-		keys := make(map[string]int)
-		var lt3Codes []string
-		for _, entry := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
-			if cs := utils.ListCode(entry.Name()); len(cs) != 0 {
-				keys[cs[0]]++
+		if clean {
+			// 检查db图片完整性 图片小于3个需要删除db数据重新抓取
+			keys := make(map[string]int)
+			var lt3Codes []string
+			for _, entry := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
+				if cs := utils.ListCode(entry.Name()); len(cs) != 0 {
+					keys[cs[0]]++
+				}
 			}
-		}
-		for k, v := range keys {
-			if v != 3 {
-				lt3Codes = append(lt3Codes, k)
+			for k, v := range keys {
+				if v != 3 {
+					lt3Codes = append(lt3Codes, k)
+				}
 			}
+			table.Where("code IN ?", lt3Codes).Delete(&domain.WorkDomain{})
 		}
-		table.Where("code IN ?", lt3Codes).Delete(&domain.WorkDomain{})
 
 		// 不在目录树的 需要删除db数据和图片
 		var dbCodes []string
