@@ -41,10 +41,10 @@ func (s *service) WorkCodes(codes []string) []domain.WorkDomain {
 	return resp
 }
 
-func (s *service) Labels(category string) []dto.LabelResponse {
-	var results []dto.LabelResponse
+func (s *service) Labels(category string) *[]dto.LabelResponse {
 
-	cache.GetOrSetJSON[[]dto.LabelResponse](fmt.Sprintf("category:%s", category), &results, func() []dto.LabelResponse {
+	return cache.GetOrSetJSON[*[]dto.LabelResponse](fmt.Sprintf("category:%s", category), func() *[]dto.LabelResponse {
+		var results = new([]dto.LabelResponse)
 		var fn func(g *gorm.DB)
 		switch category {
 		case "vas", "tags":
@@ -58,25 +58,19 @@ func (s *service) Labels(category string) []dto.LabelResponse {
 				g.Select(fmt.Sprintf("%s name, COUNT(1) count", category)).Group(category).Order("count DESC")
 			}
 		}
-		db.NewKoeDB[[]domain.WorkDomain](domain.WorkDomain{}).RunRow(&results, fn)
+		db.NewKoeDB[[]domain.WorkDomain](domain.WorkDomain{}).RunRow(results, fn)
 		return results
 	})
-
-	return results
 }
 
 func (s *service) Track(code string) []*others.Node {
-	var resp = cache.GetJSON[[]*others.Node]("tree")
+	var tree = cache.GetJSON[[]*others.Node]("tree")
 
-	trackCacheKey := fmt.Sprintf("track:%s", code)
-	if cache.GetOrSetJSON[[]*others.Node](trackCacheKey, &resp, func() []*others.Node {
+	return cache.GetOrSetJSON[[]*others.Node](fmt.Sprintf("track:%s", code), func() []*others.Node {
 		logrus.Infof("缓存为空 获取目录树: %s", code)
-		return utils.GetTree(code, resp)
-	}) {
-		logrus.Infof("缓存命中: %s", trackCacheKey)
-	}
-
-	return resp
+		getTree := utils.GetTree(code, tree)
+		return getTree
+	})
 }
 
 func (s *service) GetFileFromUUID(uuid string) string {

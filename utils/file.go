@@ -102,11 +102,11 @@ func getTreeHelper(code string, result *[]*others.Node, tree []*others.Node) {
 			*result = append(*result, e)
 		} else {
 			nodes := make([]*others.Node, 0)
-			var c = &nodes
+			var c = nodes
 			for _, cc := range e.Children {
-				*c = append(*c, cc)
+				c = append(c, cc)
 			}
-			getTreeHelper(code, result, *c)
+			getTreeHelper(code, result, c)
 		}
 	}
 }

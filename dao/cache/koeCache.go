@@ -60,18 +60,18 @@ func GetJSON[T any](key string) T {
 	return *resp
 }
 
-func GetOrSetJSON[T any](key string, resp *T, fn func() T) bool {
+func GetOrSetJSON[T any](key string, fn func() T) T {
 	entry, err := cache.Get(key)
+
+	resp := new(T)
 
 	// 存在缓存
 	if err == nil {
 		logrus.Info("[GetOrSetJSON]读缓存:", key)
 		utils.Unmarshal(string(entry), resp)
-		return true
+		return *resp
 	}
 	result := fn()
 	cache.Set(key, utils.IgnoreErr(json.Marshal(result)))
-	*resp = result
-
-	return false
+	return result
 }

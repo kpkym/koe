@@ -2,7 +2,9 @@ package handler
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/model/dto"
+	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
 	"net/http"
@@ -40,9 +42,9 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/tracks/:code", func(c *gin.Context) {
-		code := c.Param("code")
-		var nodes = service.NewService().Track(code)
-		c.JSON(http.StatusOK, nodes)
+		c.JSON(http.StatusOK, cache.GetOrSetJSON[[]*others.Node](c.Request.RequestURI, func() []*others.Node {
+			return service.NewService().Track(c.Param("code"))
+		}))
 	})
 
 	group.GET("/label/:category/", func(c *gin.Context) {
