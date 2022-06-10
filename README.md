@@ -4,7 +4,7 @@
   - [x] 获取目录树
     - [x] 扫描目录树
     - [x] 文件关联UUID
-    - [x] 使用bigcache缓存
+    - [x] 使用bigcache缓存 (现改成map)
     - [x] 使用protobuf序列化, 反序列化
     - [x] 使用copier转换pb和dto
   - [x] 获取指定目录树
@@ -23,3 +23,4 @@
 - [x] 标签查询
 - [x] 初始化任务方法添加
 - [ ] 去除IgnoreErr方法
+- [ ] 评价接口
