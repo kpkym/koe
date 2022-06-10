@@ -1,4 +1,4 @@
-package utils
+package koe
 
 import (
 	"fmt"
@@ -6,8 +6,8 @@ import (
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/others"
+	"github.com/kpkym/koe/utils"
 	"github.com/mitchellh/go-homedir"
-	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"path"
 	"path/filepath"
@@ -20,40 +20,26 @@ var (
 	compile = regexp2.MustCompile(`(?<!\d)\d{6}(?!\d)`, regexp2.None)
 )
 
-func FilePath2Struct[V interface{}](filePath string) []V {
-	list := make([]V, 0)
-	value := gjson.ParseBytes(IgnoreErr(ioutil.ReadFile(IgnoreErr(homedir.Expand(filePath)))))
-
-	value.ForEach(func(_, v gjson.Result) bool {
-		var po V
-		Unmarshal(v.Raw, &po)
-		list = append(list, po)
-		return true
-	})
-
-	return list
-}
-
 func ListCode(s string) []string {
 	regexp2FindAllString := func(re *regexp2.Regexp, s string) []string {
 		var matches []string
-		m := IgnoreErr(re.FindStringMatch(s))
+		m := utils.IgnoreErr(re.FindStringMatch(s))
 		for m != nil {
 			matches = append(matches, m.String())
-			m = IgnoreErr(re.FindNextMatch(m))
+			m = utils.IgnoreErr(re.FindNextMatch(m))
 		}
 		return matches
 	}
 
-	codeList := hashset.New(Map(regexp2FindAllString(compile, s), Str2Any)...)
-	return Map(codeList.Values(), Any2Str)
+	codeList := hashset.New(utils.Map(regexp2FindAllString(compile, s), utils.Str2Any)...)
+	return utils.Map(codeList.Values(), utils.Any2Str)
 }
 
 func ListMyCode(nodes []*others.Node) []string {
 	var b strings.Builder
 
-	for _, item := range FlatTree(nodes) {
-		if item.Type == FolderType {
+	for _, item := range utils.FlatTree(nodes) {
+		if item.Type == utils.FolderType {
 			b.WriteString(item.Title + " ")
 		}
 	}
@@ -62,12 +48,12 @@ func ListMyCode(nodes []*others.Node) []string {
 }
 
 func GetNasJson() []others.Po {
-	return FilePath2Struct[others.Po](GetNextNasCacheFile())
+	return utils.FilePath2Struct[others.Po](GetNextNasCacheFile())
 }
 
 func GetNextNasCacheFile() string {
-	dir := filepath.Dir(IgnoreErr(homedir.Expand(global.GetServiceContext().Config.FlagConfig.NasCacheFile)))
-	files := IgnoreErr(ioutil.ReadDir(dir))
+	dir := filepath.Dir(utils.IgnoreErr(homedir.Expand(global.GetServiceContext().Settings.NasCacheFile)))
+	files := utils.IgnoreErr(ioutil.ReadDir(dir))
 	sort.Slice(files, func(i, j int) bool {
 		return strings.Compare(files[i].Name(), files[j].Name()) > 0
 	})
@@ -78,8 +64,8 @@ func GetNextNasCacheFile() string {
 // GetImgUrl 获取图片url地址
 func GetImgUrl(code, typee string) string {
 	code2 := code[:3] + "000"
-	if IgnoreErr(strconv.Atoi(code[3:])) != 0 {
-		code2 = strconv.Itoa(IgnoreErr(strconv.Atoi(code2)) + 1000)
+	if utils.IgnoreErr(strconv.Atoi(code[3:])) != 0 {
+		code2 = strconv.Itoa(utils.IgnoreErr(strconv.Atoi(code2)) + 1000)
 	}
 
 	config := global.GetServiceContext().Config
@@ -93,16 +79,16 @@ func GetImgUrl(code, typee string) string {
 }
 
 func GetLrcPath(name string, nodes []*others.Node, fn func(string) string) (string, error) {
-	filter := Filter[*others.Node](FlatTree(nodes), func(item *others.Node) bool {
+	filter := utils.Filter[*others.Node](utils.FlatTree(nodes), func(item *others.Node) bool {
 		return item.Type != "folder" && filepath.Ext(item.Title) == ".lrc"
 	})
 
 	lrcMap := make(map[int]string)
 
-	for _, e := range Map[*others.Node](filter, func(item *others.Node) string {
+	for _, e := range utils.Map[*others.Node](filter, func(item *others.Node) string {
 		return fn(item.UUID)
 	}) {
-		lrcMap[Longest(name, e)] = e
+		lrcMap[utils.Longest(name, e)] = e
 	}
 
 	keys := make([]int, 0, len(lrcMap))

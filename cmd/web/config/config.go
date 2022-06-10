@@ -6,14 +6,10 @@ type Config struct {
 }
 
 type FlagConfig struct {
-	Port         string `mapstructure:"port"`
-	Proxy        string `mapstructure:"proxy"`
-	NasCacheFile string `mapstructure:"nascachefile"`
-	DataDir      string `mapstructure:"dataDir"`
-	ScanDir      string `mapstructure:"scandir"`
+	Port string `mapstructure:"port"`
 }
 
 type CommonConfig struct {
-	DownloadPattern1 string `mapstructure:"downloadpattern1"`
-	DownloadPattern2 string `mapstructure:"downloadpattern2"`
+	DownloadPattern1 string `mapstructure:"downloadPattern1"`
+	DownloadPattern2 string `mapstructure:"downloadPattern2"`
 }

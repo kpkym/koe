@@ -3,6 +3,8 @@ package utils
 import (
 	"github.com/kpkym/koe/model/others"
 	"github.com/mitchellh/go-homedir"
+	"github.com/tidwall/gjson"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strings"
@@ -80,4 +82,18 @@ func GetFileBaseOnPwd(filepaths ...string) string {
 	filepaths = append([]string{wd}, filepaths...)
 
 	return filepath.Join(filepaths...)
+}
+
+func FilePath2Struct[V interface{}](filePath string) []V {
+	list := make([]V, 0)
+	value := gjson.ParseBytes(IgnoreErr(ioutil.ReadFile(IgnoreErr(homedir.Expand(filePath)))))
+
+	value.ForEach(func(_, v gjson.Result) bool {
+		var po V
+		Unmarshal(v.Raw, &po)
+		list = append(list, po)
+		return true
+	})
+
+	return list
 }

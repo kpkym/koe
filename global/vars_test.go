@@ -6,6 +6,7 @@ import (
 )
 
 func TestGetNextNasCacheFile(t *testing.T) {
+	fmt.Println(DataDir)
 }
 
 func TestName(t *testing.T) {

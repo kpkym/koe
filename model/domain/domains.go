@@ -19,3 +19,9 @@ type WorkDomain struct {
 	RateCountDetail datatypes.JSON `json:"rate_count_detail"`
 	Rank            datatypes.JSON `json:"rank"`
 }
+
+type Settings struct {
+	Proxy        string
+	ScanDirs     datatypes.JSON
+	NasCacheFile string
+}

@@ -8,13 +8,13 @@ import (
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/router"
 	"github.com/kpkym/koe/utils"
+	"github.com/kpkym/koe/utils/koe"
 	"github.com/spf13/cobra"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 	"io/fs"
 	"net/http"
-	"os"
 	"path/filepath"
 )
 
@@ -23,9 +23,7 @@ var (
 		Use:   "web",
 		Short: "启动web服务",
 		Run: func(_ *cobra.Command, _ []string) {
-			os.MkdirAll(global.GetServiceContext().Config.DataDir, 0700)
-			global.AddDB(initDB())
-			InitTree()
+			koe.BuildTree()
 			web()
 		},
 	}
@@ -38,36 +36,35 @@ var configString string
 var dist embed.FS
 
 func init() {
-	flagConfig := &config.FlagConfig{}
-	commonConfig := &config.CommonConfig{}
-	initConfig("flag", flagConfig)
-	initConfig("common", commonConfig)
-
+	fcg := initConfig[config.FlagConfig]("flag")
 	global.SetServiceContext(&config.Config{
-		FlagConfig:   flagConfig,
-		CommonConfig: commonConfig,
-	})
-
-	initPlag(flagConfig)
-}
-
-func web() {
-	serve := router.GetGinServe()
-
-	fs := http.FS(utils.IgnoreErr(fs.Sub(dist, "dist")))
-
-	serve.NoRoute(func(context *gin.Context) {
-		context.FileFromFS("/"+context.Request.RequestURI, fs)
-	})
-
-	serve.Run(":" + global.GetServiceContext().Config.FlagConfig.Port)
+		FlagConfig:   fcg,
+		CommonConfig: initConfig[config.CommonConfig]("common"),
+	}, initDB())
+	initPlag(fcg)
+	global.AddSettings(loadSettingsFromDB())
 }
 
 func initDB() *gorm.DB {
 	// 初始化数据库
-	db := utils.IgnoreErr(gorm.Open(sqlite.Open(filepath.Join(global.GetServiceContext().Config.FlagConfig.DataDir, "koe.db")),
+	db := utils.IgnoreErr(gorm.Open(sqlite.Open(filepath.Join(global.DataDir, "koe.db")),
 		&gorm.Config{Logger: logger.Default.LogMode(logger.Info)}))
 	// 迁移 schema
 	db.AutoMigrate(&domain.WorkDomain{})
+	db.AutoMigrate(&domain.Settings{})
 	return db
+}
+
+func loadSettingsFromDB() *domain.Settings {
+	settings := new(domain.Settings)
+	global.GetServiceContext().DB.Model(domain.Settings{}).First(settings)
+	return settings
+}
+
+func web() {
+	serve := router.GetGinServe()
+	serve.NoRoute(func(context *gin.Context) {
+		context.FileFromFS("/"+context.Request.RequestURI, http.FS(utils.IgnoreErr(fs.Sub(dist, "dist"))))
+	})
+	serve.Run(":" + global.GetServiceContext().Config.FlagConfig.Port)
 }

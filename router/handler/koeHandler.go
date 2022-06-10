@@ -6,7 +6,7 @@ import (
 	"github.com/kpkym/koe/model/dto"
 	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/service"
-	"github.com/kpkym/koe/utils"
+	"github.com/kpkym/koe/utils/koe"
 	"net/http"
 )
 
@@ -28,7 +28,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/search/*codes", func(c *gin.Context) {
-		works := service.NewService().WorkCodes(utils.ListCode(c.Param("codes")))
+		works := service.NewService().WorkCodes(koe.ListCode(c.Param("codes")))
 		count := len(works)
 		c.JSON(http.StatusOK, dto.SearchResponse{
 			Pagination: dto.Pagination{CurrentPage: 1, PageSize: count, TotalCount: int64(count)},
@@ -37,6 +37,11 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/work/:code", func(c *gin.Context) {
+		work := service.NewService().WorkCodes([]string{c.Param("code")})[0]
+		c.JSON(http.StatusOK, work)
+	})
+
+	group.PUT("/work/:code", func(c *gin.Context) {
 		work := service.NewService().WorkCodes([]string{c.Param("code")})[0]
 		c.JSON(http.StatusOK, work)
 	})

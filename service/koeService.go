@@ -8,6 +8,7 @@ import (
 	"github.com/kpkym/koe/model/dto"
 	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/utils"
+	"github.com/kpkym/koe/utils/koe"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
 	"path/filepath"
@@ -64,7 +65,7 @@ func (s *service) Labels(category string) *[]dto.LabelResponse {
 }
 
 func (s *service) Track(code string) []*others.Node {
-	tree, _ := cache.NewMapCache[[]*others.Node]().Get("tree")
+	tree, _ := cache.NewMapCache[[]*others.Node]().Get("trees")
 
 	return cache.NewMapCache[[]*others.Node]().GetOrSet(fmt.Sprintf("track:%s", code), func() []*others.Node {
 		logrus.Infof("缓存为空 获取目录树: %s", code)
@@ -83,7 +84,7 @@ func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
 	audioFilePath, _ := cache.NewMapCache[string]().Get(uuid)
 	nodes, _ := cache.NewMapCache[[]*others.Node]().Get(trackCacheKey)
 
-	lrcPath, _ := utils.GetLrcPath(filepath.Base(audioFilePath), nodes, func(uuid string) string {
+	lrcPath, _ := koe.GetLrcPath(filepath.Base(audioFilePath), nodes, func(uuid string) string {
 		lrcFilepath, _ := cache.NewMapCache[string]().Get(uuid)
 		return lrcFilepath
 	})
