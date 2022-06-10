@@ -21,7 +21,10 @@ type WorkDomain struct {
 }
 
 type Settings struct {
-	Proxy        string
-	ScanDirs     datatypes.JSON
-	NasCacheFile string
+	ID              uint           `json:"id" gorm:"primaryKey" `
+	Proxy           string         `json:"proxy"`
+	ScanDirs        datatypes.JSON `json:"scanDirs" gorm:"default:[]""`
+	NasCacheFile    string         `json:"nasCacheFile"`
+	RewindSeekTime  uint           `json:"rewindSeekTime" gorm:"default:10""`
+	ForwardSeekTime uint           `json:"forwardSeekTime" gorm:"default:10""`
 }

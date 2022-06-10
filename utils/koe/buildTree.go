@@ -50,23 +50,23 @@ func scan(parents map[string]*others.Node) {
 			Title: info.Name(),
 		}
 
+		uuid := strings.Replace(uuid.NewString(), "-", "", -1)
 		if info.IsDir() {
 			node.Type = utils.FolderType
 			node.Children = make([]*others.Node, 0)
 		} else {
-			uuid := strings.Replace(uuid.NewString(), "-", "", -1)
 			node.Type = getType(filepath.Ext(path))
 			if codes := ListCode(path); len(codes) > 0 {
 				node.Code = codes[0]
 			}
-			node.UUID = uuid
-			cache.NewMapCache[string]().Set(uuid, path)
 		}
+		node.UUID = uuid
+		cache.NewMapCache[string]().Set(uuid, path)
 		parents[path] = node
 		return nil
 	}
 
-	for _, e := range gjson.Parse(scanDirs.String()).Array() {
+	for _, e := range gjson.Parse(scanDirs.String()).Get("#.path").Array() {
 		filepath.Walk(utils.IgnoreErr(homedir.Expand(e.String())), walkFunc)
 	}
 }
@@ -104,7 +104,7 @@ func BuildTree() {
 }
 
 // Deprecated
-func removeNotInTrees(tree []*others.Node) {
+func RemoveNotInTrees(tree []*others.Node, fn func([]string)) {
 	utils.GoSafe(func() {
 		table := global.GetServiceContext().DB.Table("work_domains").Session(&gorm.Session{})
 		imageDir := filepath.Join(global.DataDir, "imgs")
@@ -129,16 +129,14 @@ func removeNotInTrees(tree []*others.Node) {
 
 		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
 			logrus.Info("爬虫抓取", needCrawlCodes)
-			// colly.C(needCrawlCodes, func(workDomain *domain.WorkDomain) {
-			// 	global.GetServiceContext().DB.Create(workDomain)
-			// })
+			fn(needCrawlCodes)
 		}
 		logrus.Info("爬虫完成")
 	}, "爬虫出错: ", string(debug.Stack()))
 }
 
 // Deprecated
-func removeIncomplete() {
+func RemoveIncomplete() {
 	imageDir := filepath.Join(global.DataDir, "imgs")
 
 	// 检查db图片完整性 图片小于3个需要删除db数据重新抓取

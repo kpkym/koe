@@ -4,8 +4,11 @@ import (
 	"embed"
 	"github.com/gin-gonic/gin"
 	"github.com/kpkym/koe/cmd/web/config"
+	"github.com/kpkym/koe/colly"
+	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
+	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/router"
 	"github.com/kpkym/koe/utils"
 	"github.com/kpkym/koe/utils/koe"
@@ -24,6 +27,13 @@ var (
 		Short: "启动web服务",
 		Run: func(_ *cobra.Command, _ []string) {
 			koe.BuildTree()
+			trees, _ := cache.NewMapCache[[]*others.Node]().Get("trees")
+			koe.RemoveIncomplete()
+			koe.RemoveNotInTrees(trees, func(needCrawlCodes []string) {
+				colly.C(needCrawlCodes, func(workDomain *domain.WorkDomain) {
+					global.GetServiceContext().DB.Create(workDomain)
+				})
+			})
 			web()
 		},
 	}
@@ -56,8 +66,8 @@ func initDB() *gorm.DB {
 }
 
 func loadSettingsFromDB() *domain.Settings {
-	settings := new(domain.Settings)
-	global.GetServiceContext().DB.Model(domain.Settings{}).First(settings)
+	settings := &domain.Settings{ID: 1, ScanDirs: []byte("[]")}
+	global.GetServiceContext().DB.FirstOrCreate(settings)
 	return settings
 }
 
