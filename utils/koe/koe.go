@@ -80,7 +80,7 @@ func GetImgUrl(code, typee string) string {
 
 func GetLrcPath(name string, nodes []*others.Node, fn func(uint32) string) (string, error) {
 	filter := utils.Filter[*others.Node](utils.FlatTree(nodes), func(item *others.Node) bool {
-		return item.Type != "folder" && filepath.Ext(item.Title) == ".lrc"
+		return filepath.Ext(item.Title) == ".lrc"
 	})
 
 	lrcMap := make(map[int]string)
@@ -88,7 +88,7 @@ func GetLrcPath(name string, nodes []*others.Node, fn func(uint32) string) (stri
 	for _, e := range utils.Map[*others.Node](filter, func(item *others.Node) string {
 		return fn(item.UUID)
 	}) {
-		lrcMap[utils.Longest(name, e)] = e
+		lrcMap[utils.Longest(name, filepath.Base(e))] = e
 	}
 
 	keys := make([]int, 0, len(lrcMap))

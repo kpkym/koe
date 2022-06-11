@@ -3,10 +3,12 @@ package handler
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/kpkym/koe/global"
+	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/service"
 	"github.com/kpkym/koe/utils"
 	"github.com/kpkym/koe/utils/koe"
 	"github.com/sirupsen/logrus"
+	"net/http"
 	"path/filepath"
 )
 
@@ -24,6 +26,15 @@ func InitFileHandler(group *gin.RouterGroup) {
 		filePath := koeService.GetLrcFromAudioUUID(c.Param("code"), utils.Str2Num[uint32](c.Param("uuid")))
 
 		c.File(filePath)
+	})
+
+	group.GET("/lrcs/:code", func(c *gin.Context) {
+		koeService := service.NewService()
+		nodes := koeService.GetLrcsFromAudioUUID(c.Param("code"))
+
+		c.JSON(http.StatusOK, utils.Map[*others.Node, gin.H](nodes, func(node *others.Node) gin.H {
+			return gin.H{"uuid": node.UUID, "name": node.Title}
+		}))
 	})
 
 	group.GET("/:uuid", func(c *gin.Context) {

@@ -91,3 +91,12 @@ func (s *service) GetLrcFromAudioUUID(code string, uuid uint32) string {
 	logrus.Infof("查找文件: %s的lrc文件. 结果为为: %s", audioFilePath, lrcPath)
 	return lrcPath
 }
+
+func (s *service) GetLrcsFromAudioUUID(code string) []*others.Node {
+	trackCacheKey := fmt.Sprintf("track:%s", code)
+	nodes, _ := cache.NewMapCache[string, []*others.Node]().Get(trackCacheKey)
+
+	return utils.Filter[*others.Node](utils.FlatTree(nodes), func(item *others.Node) bool {
+		return filepath.Ext(item.Title) == ".lrc"
+	})
+}
