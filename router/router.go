@@ -25,6 +25,7 @@ func GetGinServe() *gin.Engine {
 	api := engin.Group("api")
 	handler.InitKoeHandler(api)
 	handler.InitSettingsHandler(api)
+	handler.InitReviewHandler(api)
 	handler.InitFileHandler(engin.Group("file"))
 
 	engin.GET("ping", func(c *gin.Context) {

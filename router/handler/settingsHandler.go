@@ -13,13 +13,13 @@ import (
 
 func InitSettingsHandler(group *gin.RouterGroup) {
 	group.GET("/scan", func(c *gin.Context) {
-		c.JSON(http.StatusOK, "ok")
+		c.String(http.StatusOK, "ok")
 	})
 
 	group.GET("/open/:uuid", func(c *gin.Context) {
 		filePath := service.NewService().GetFileFromUUID(utils.Str2Num[uint32](c.Param("uuid")))
 		exec.Command("open", fmt.Sprintf("%s", filePath)).Run()
-		c.JSON(http.StatusOK, "ok")
+		c.String(http.StatusOK, "ok")
 	})
 
 	settings := group.Group("/settings")
@@ -33,6 +33,6 @@ func InitSettingsHandler(group *gin.RouterGroup) {
 			settings := &domain.Settings{ID: 1}
 			c.ShouldBindJSON(settings)
 			global.GetServiceContext().DB.Save(settings)
-			c.JSON(http.StatusOK, "ok")
+			c.String(http.StatusOK, "ok")
 		})
 }
