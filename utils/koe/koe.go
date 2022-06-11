@@ -48,7 +48,11 @@ func ListMyCode(nodes []*others.Node) []string {
 }
 
 func GetNasJson() []others.Po {
-	return utils.FilePath2Struct[others.Po](GetNextNasCacheFile())
+	filePath := GetNextNasCacheFile()
+	if filePath == "" {
+		return make([]others.Po, 0)
+	}
+	return utils.FilePath2Struct[others.Po](filePath)
 }
 
 func GetNextNasCacheFile() string {
