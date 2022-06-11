@@ -6,6 +6,7 @@ import (
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/service"
+	"github.com/kpkym/koe/utils"
 	"net/http"
 	"os/exec"
 )
@@ -16,7 +17,7 @@ func InitSettingsHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/open/:uuid", func(c *gin.Context) {
-		filePath := service.NewService().GetFileFromUUID(c.Param("uuid"))
+		filePath := service.NewService().GetFileFromUUID(utils.Str2Num[uint32](c.Param("uuid")))
 		exec.Command("open", fmt.Sprintf("%s", filePath)).Run()
 		c.JSON(http.StatusOK, "ok")
 	})

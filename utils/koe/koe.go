@@ -78,7 +78,7 @@ func GetImgUrl(code, typee string) string {
 	return url
 }
 
-func GetLrcPath(name string, nodes []*others.Node, fn func(string) string) (string, error) {
+func GetLrcPath(name string, nodes []*others.Node, fn func(uint32) string) (string, error) {
 	filter := utils.Filter[*others.Node](utils.FlatTree(nodes), func(item *others.Node) bool {
 		return item.Type != "folder" && filepath.Ext(item.Title) == ".lrc"
 	})

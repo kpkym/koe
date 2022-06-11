@@ -5,10 +5,10 @@ import (
 	"runtime/debug"
 )
 
-type Cache[T any] interface {
-	Get(key string) (value T, ok bool)
-	Set(key string, value T)
-	GetOrSet(key string, fn func() (value T)) (value T)
+type Cache[K comparable, T any] interface {
+	Get(key K) (value T, ok bool)
+	Set(key K, value T)
+	GetOrSet(key K, fn func() (value T)) (value T)
 }
 
 func logError() {

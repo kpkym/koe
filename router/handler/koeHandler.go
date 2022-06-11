@@ -47,7 +47,7 @@ func InitKoeHandler(group *gin.RouterGroup) {
 	})
 
 	group.GET("/tracks/:code", func(c *gin.Context) {
-		c.JSON(http.StatusOK, cache.NewMapCache[[]*others.Node]().GetOrSet(c.Request.RequestURI, func() []*others.Node {
+		c.JSON(http.StatusOK, cache.NewMapCache[string, []*others.Node]().GetOrSet(c.Request.RequestURI, func() []*others.Node {
 			return service.NewService().Track(c.Param("code"))
 		}))
 	})

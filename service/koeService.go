@@ -44,7 +44,7 @@ func (s *service) WorkCodes(codes []string) []domain.WorkDomain {
 
 func (s *service) Labels(category string) *[]dto.LabelResponse {
 
-	return cache.NewMapCache[*[]dto.LabelResponse]().GetOrSet(fmt.Sprintf("category:%s", category), func() *[]dto.LabelResponse {
+	return cache.NewMapCache[string, *[]dto.LabelResponse]().GetOrSet(fmt.Sprintf("category:%s", category), func() *[]dto.LabelResponse {
 		var results = new([]dto.LabelResponse)
 		var fn func(g *gorm.DB)
 		switch category {
@@ -65,27 +65,27 @@ func (s *service) Labels(category string) *[]dto.LabelResponse {
 }
 
 func (s *service) Track(code string) []*others.Node {
-	tree, _ := cache.NewMapCache[[]*others.Node]().Get("trees")
+	tree, _ := cache.NewMapCache[string, []*others.Node]().Get("trees")
 
-	return cache.NewMapCache[[]*others.Node]().GetOrSet(fmt.Sprintf("track:%s", code), func() []*others.Node {
+	return cache.NewMapCache[string, []*others.Node]().GetOrSet(fmt.Sprintf("track:%s", code), func() []*others.Node {
 		logrus.Infof("缓存为空 获取目录树: %s", code)
 		getTree := utils.GetTree(code, tree)
 		return getTree
 	})
 }
 
-func (s *service) GetFileFromUUID(uuid string) string {
-	value, _ := cache.NewMapCache[string]().Get(uuid)
+func (s *service) GetFileFromUUID(uuid uint32) string {
+	value, _ := cache.NewMapCache[uint32, string]().Get(uuid)
 	return value
 }
 
-func (s *service) GetLrcFromAudioUUID(code, uuid string) string {
+func (s *service) GetLrcFromAudioUUID(code string, uuid uint32) string {
 	trackCacheKey := fmt.Sprintf("track:%s", code)
-	audioFilePath, _ := cache.NewMapCache[string]().Get(uuid)
-	nodes, _ := cache.NewMapCache[[]*others.Node]().Get(trackCacheKey)
+	audioFilePath, _ := cache.NewMapCache[uint32, string]().Get(uuid)
+	nodes, _ := cache.NewMapCache[string, []*others.Node]().Get(trackCacheKey)
 
-	lrcPath, _ := koe.GetLrcPath(filepath.Base(audioFilePath), nodes, func(uuid string) string {
-		lrcFilepath, _ := cache.NewMapCache[string]().Get(uuid)
+	lrcPath, _ := koe.GetLrcPath(filepath.Base(audioFilePath), nodes, func(uuid uint32) string {
+		lrcFilepath, _ := cache.NewMapCache[uint32, string]().Get(uuid)
 		return lrcFilepath
 	})
 	logrus.Infof("查找文件: %s的lrc文件. 结果为为: %s", audioFilePath, lrcPath)

@@ -3,7 +3,6 @@ package koe
 import (
 	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
-	"github.com/google/uuid"
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
@@ -50,7 +49,8 @@ func scan(parents map[string]*others.Node) {
 			Title: info.Name(),
 		}
 
-		uuid := strings.Replace(uuid.NewString(), "-", "", -1)
+		// uuid := strings.Replace(uuid.NewString(), "-", "", -1)
+		uuid := utils.NextUUID()
 		if info.IsDir() {
 			node.Type = utils.FolderType
 			node.Children = make([]*others.Node, 0)
@@ -61,7 +61,7 @@ func scan(parents map[string]*others.Node) {
 			}
 		}
 		node.UUID = uuid
-		cache.NewMapCache[string]().Set(uuid, path)
+		cache.NewMapCache[uint32, string]().Set(uuid, path)
 		parents[path] = node
 		return nil
 	}
@@ -100,7 +100,7 @@ func BuildTree() {
 		}
 	}
 
-	cache.NewMapCache[[]*others.Node]().Set("trees", trees)
+	cache.NewMapCache[string, []*others.Node]().Set("trees", trees)
 }
 
 // Deprecated

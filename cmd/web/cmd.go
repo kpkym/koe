@@ -27,7 +27,7 @@ var (
 		Short: "启动web服务",
 		Run: func(_ *cobra.Command, _ []string) {
 			koe.BuildTree()
-			trees, _ := cache.NewMapCache[[]*others.Node]().Get("trees")
+			trees, _ := cache.NewMapCache[string, []*others.Node]().Get("trees")
 			koe.RemoveIncomplete()
 			koe.RemoveNotInTrees(trees, func(needCrawlCodes []string) {
 				colly.C(needCrawlCodes, func(workDomain *domain.WorkDomain) {
