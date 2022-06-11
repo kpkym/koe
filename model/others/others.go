@@ -2,7 +2,7 @@ package others
 
 type Po struct {
 	Type string `json:"type"`
-	Ext  string `json:"ext"`
+	// Ext  string `json:"ext"`
 	Path string `json:"path"`
 }
 

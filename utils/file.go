@@ -65,7 +65,7 @@ func ScanToPo(scanPath string) []others.Po {
 
 			po := others.Po{
 				Type: filetype,
-				Ext:  strings.Replace(filepath.Ext(path), ".", "", 1),
+				// Ext:  strings.Replace(filepath.Ext(path), ".", "", 1),
 				Path: path,
 			}
 
