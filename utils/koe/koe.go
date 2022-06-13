@@ -82,17 +82,15 @@ func GetImgUrl(code, typee string) string {
 	return url
 }
 
-func GetLrcPath(name string, nodes []*others.Node, fn func(uint32) string) (string, error) {
+func GetLrcUUID(name string, nodes []*others.Node, fn func(uint32) string) (uint32, error) {
 	filter := utils.Filter[*others.Node](utils.FlatTree(nodes), func(item *others.Node) bool {
 		return filepath.Ext(item.Title) == ".lrc"
 	})
 
-	lrcMap := make(map[int]string)
+	lrcMap := make(map[int]uint32)
 
-	for _, e := range utils.Map[*others.Node](filter, func(item *others.Node) string {
-		return fn(item.UUID)
-	}) {
-		lrcMap[utils.Longest(name, filepath.Base(e))] = e
+	for _, e := range filter {
+		lrcMap[utils.Longest(name, filepath.Base(fn(e.UUID)))] = e.UUID
 	}
 
 	keys := make([]int, 0, len(lrcMap))
@@ -102,7 +100,7 @@ func GetLrcPath(name string, nodes []*others.Node, fn func(uint32) string) (stri
 	sort.Ints(keys)
 
 	if len(keys) == 0 {
-		return "", fmt.Errorf("没有找到lrc文件")
+		return 0, fmt.Errorf("没有找到lrc文件")
 	}
 
 	return lrcMap[keys[len(keys)-1]], nil

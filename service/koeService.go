@@ -79,17 +79,18 @@ func (s *service) GetFileFromUUID(uuid uint32) string {
 	return value
 }
 
-func (s *service) GetLrcFromAudioUUID(code string, uuid uint32) string {
+func (s *service) GetLrcFromAudioUUID(code string, uuid uint32) uint32 {
 	trackCacheKey := fmt.Sprintf("track:%s", code)
 	audioFilePath, _ := cache.NewMapCache[uint32, string]().Get(uuid)
 	nodes, _ := cache.NewMapCache[string, []*others.Node]().Get(trackCacheKey)
 
-	lrcPath, _ := koe.GetLrcPath(filepath.Base(audioFilePath), nodes, func(uuid uint32) string {
+	fn := func(uuid uint32) string {
 		lrcFilepath, _ := cache.NewMapCache[uint32, string]().Get(uuid)
 		return lrcFilepath
-	})
-	logrus.Infof("查找文件: %s的lrc文件. 结果为为: %s", audioFilePath, lrcPath)
-	return lrcPath
+	}
+	lrcUUID, _ := koe.GetLrcUUID(filepath.Base(audioFilePath), nodes, fn)
+	logrus.Infof("查找文件: %s的lrc文件, 结果UUID为: %v, 路径为: %v", audioFilePath, lrcUUID, fn(lrcUUID))
+	return lrcUUID
 }
 
 func (s *service) GetLrcsFromAudioUUID(code string) []*others.Node {

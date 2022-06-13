@@ -17,15 +17,13 @@ func InitFileHandler(group *gin.RouterGroup) {
 		imgPath := filepath.Join(global.DataDir, "imgs",
 			filepath.Base(koe.GetImgUrl(c.Param("code"), c.Param("type"))))
 		logrus.Infof("查找图片: %s", imgPath)
-
 		c.File(imgPath)
 	})
 
 	group.GET("/lrc/:code/:uuid", func(c *gin.Context) {
 		koeService := service.NewService()
-		filePath := koeService.GetLrcFromAudioUUID(c.Param("code"), utils.Str2Num[uint32](c.Param("uuid")))
-
-		c.File(filePath)
+		fileUUID := koeService.GetLrcFromAudioUUID(c.Param("code"), utils.Str2Num[uint32](c.Param("uuid")))
+		c.String(http.StatusOK, utils.Any2Str(fileUUID))
 	})
 
 	group.GET("/lrcs/:code", func(c *gin.Context) {
@@ -40,7 +38,6 @@ func InitFileHandler(group *gin.RouterGroup) {
 	group.GET("/:uuid", func(c *gin.Context) {
 		filePath := service.NewService().GetFileFromUUID(utils.Str2Num[uint32](c.Param("uuid")))
 		logrus.Infof("查找文件: %s", filePath)
-
 		c.File(filePath)
 	})
 }
