@@ -53,8 +53,8 @@ func FlatTree(nodes []*others.Node) []*others.Node {
 func ScanToPo(scanPath string) []others.Po {
 	pos := make([]others.Po, 0)
 
-	filepath.Walk(IgnoreErr(homedir.Expand(scanPath)),
-		func(path string, info os.FileInfo, err error) error {
+	filepath.WalkDir(IgnoreErr(homedir.Expand(scanPath)),
+		func(path string, info os.DirEntry, err error) error {
 			var filetype string
 
 			if info.IsDir() {

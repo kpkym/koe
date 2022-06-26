@@ -1,11 +1,9 @@
 package koe
 
 import (
-	"fmt"
 	"github.com/emirpasic/gods/sets/hashset"
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/global"
-	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/model/others"
 	"github.com/kpkym/koe/utils"
 	"github.com/mitchellh/go-homedir"
@@ -77,7 +75,7 @@ func BuildTree() {
 	var trees []*others.Node
 	parents := make(map[string]*others.Node)
 	scan(parents)
-	loadNas(parents)
+	loadNas(parents, global.GetServiceContext().Settings.NasPrefix)
 
 	for path, node := range parents {
 		parentPath := filepath.Dir(path)
@@ -107,7 +105,7 @@ func BuildTree() {
 func RemoveNotInTrees(tree []*others.Node, fn func([]string)) {
 	utils.GoSafe(func() {
 		table := global.GetServiceContext().DB.Table("work_domains").Session(&gorm.Session{})
-		imageDir := filepath.Join(global.DataDir, "imgs")
+		// imageDir := filepath.Join(global.DataDir, "imgs")
 		// 不在目录树的 需要删除db数据和图片
 		var dbCodes []string
 		table.Select("code").Scan(&dbCodes)
@@ -115,17 +113,17 @@ func RemoveNotInTrees(tree []*others.Node, fn func([]string)) {
 		dbCodesSet := hashset.New(utils.Map[string, any](dbCodes, utils.Str2Any)...)
 
 		needCrawlCodesSet := fileTreeCodesSet.Difference(dbCodesSet).Values()
-		if needRemoveCodesSet := dbCodesSet.Difference(fileTreeCodesSet).Values(); len(needRemoveCodesSet) > 0 {
-			// 需要删除的
-			table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
-			for _, f := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
-				for _, rmCode := range needRemoveCodesSet {
-					if strings.Contains(f.Name(), fmt.Sprint(rmCode)) {
-						os.Remove(filepath.Join(imageDir, f.Name()))
-					}
-				}
-			}
-		}
+		// if needRemoveCodesSet := dbCodesSet.Difference(fileTreeCodesSet).Values(); len(needRemoveCodesSet) > 0 {
+		// 	// 需要删除的
+		// 	table.Where("code IN ?", needRemoveCodesSet).Delete(&domain.WorkDomain{})
+		// 	for _, f := range utils.IgnoreErr(ioutil.ReadDir(imageDir)) {
+		// 		for _, rmCode := range needRemoveCodesSet {
+		// 			if strings.Contains(f.Name(), fmt.Sprint(rmCode)) {
+		// 				// os.Remove(filepath.Join(imageDir, f.Name()))
+		// 			}
+		// 		}
+		// 	}
+		// }
 
 		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
 			logrus.Info("爬虫抓取", needCrawlCodes)
@@ -152,5 +150,5 @@ func RemoveIncomplete() {
 			lt3Codes = append(lt3Codes, k)
 		}
 	}
-	global.GetServiceContext().DB.Table("work_domains").Where("code IN ?", lt3Codes).Delete(&domain.WorkDomain{})
+	// global.GetServiceContext().DB.Table("work_domains").Where("code IN ?", lt3Codes).Delete(&domain.WorkDomain{})
 }

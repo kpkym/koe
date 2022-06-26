@@ -27,4 +27,5 @@ type Settings struct {
 	NasCacheFile    string         `json:"nasCacheFile"`
 	RewindSeekTime  uint           `json:"rewindSeekTime" gorm:"default:10""`
 	ForwardSeekTime uint           `json:"forwardSeekTime" gorm:"default:10""`
+	NasPrefix       string         `json:"nasPrefix"`
 }

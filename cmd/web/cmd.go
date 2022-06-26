@@ -28,7 +28,7 @@ var (
 		Run: func(_ *cobra.Command, _ []string) {
 			koe.BuildTree()
 			trees, _ := cache.NewMapCache[string, []*others.Node]().Get("trees")
-			koe.RemoveIncomplete()
+			// koe.RemoveIncomplete()
 			koe.RemoveNotInTrees(trees, func(needCrawlCodes []string) {
 				colly.C(needCrawlCodes, func(workDomain *domain.WorkDomain) {
 					global.GetServiceContext().DB.Create(workDomain)
