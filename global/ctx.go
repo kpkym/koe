@@ -1,7 +1,6 @@
 package global
 
 import (
-	"github.com/kpkym/koe/cmd/web/config"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/sirupsen/logrus"
 	"gorm.io/gorm"
@@ -13,13 +12,17 @@ var (
 )
 
 type serviceContext struct {
-	Config   *config.Config
+	Config   *Config
 	DB       *gorm.DB
 	Settings *domain.Settings
 }
 
-func SetServiceContext(c *config.Config, db *gorm.DB) {
-	ctx = serviceContext{Config: c, DB: db}
+func AddConfig(c *Config) {
+	ctx.Config = c
+}
+
+func AddDB(db *gorm.DB) {
+	ctx.DB = db
 }
 
 func AddSettings(settings *domain.Settings) {

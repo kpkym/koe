@@ -128,8 +128,8 @@ func RemoveNotInTrees(tree []*others.Node, fn func([]string)) {
 		if needCrawlCodes := utils.Map[any, string](needCrawlCodesSet, utils.Any2Str); len(needCrawlCodes) > 0 {
 			logrus.Info("爬虫抓取", needCrawlCodes)
 			fn(needCrawlCodes)
+			logrus.Info("爬虫完成")
 		}
-		logrus.Info("爬虫完成")
 	}, "爬虫出错: ", string(debug.Stack()))
 }
 

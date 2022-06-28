@@ -1,8 +1,10 @@
 package utils
 
 import (
+	"bytes"
 	"github.com/kpkym/koe/model/others"
 	"github.com/mitchellh/go-homedir"
+	"github.com/spf13/viper"
 	"github.com/tidwall/gjson"
 	"io/ioutil"
 	"os"
@@ -96,4 +98,25 @@ func FilePath2Struct[V interface{}](filePath string) []V {
 	})
 
 	return list
+}
+
+func GetTomlConfig[T any](configString, key string) *T {
+	t := new(T)
+	buffer := bytes.NewBufferString(configString)
+	v := viper.New()
+	v.SetConfigType("toml")
+	v.ReadConfig(buffer)
+
+	var err error
+	if key != "" {
+		err = v.UnmarshalKey(key, t)
+	} else {
+		err = v.Unmarshal(t)
+	}
+
+	if err != nil {
+		os.Exit(1)
+	}
+
+	return t
 }

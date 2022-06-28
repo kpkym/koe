@@ -74,9 +74,9 @@ func GetImgUrl(code, typee string) string {
 
 	config := global.GetServiceContext().Config
 
-	url := fmt.Sprintf(config.DownloadPattern1, code2, code, typee)
+	url := fmt.Sprintf(config.FixConfig.DownloadPattern1, code2, code, typee)
 	if typee == "240x240" || typee == "360x360" {
-		url = fmt.Sprintf(config.DownloadPattern2, code2, code, typee)
+		url = fmt.Sprintf(config.FixConfig.DownloadPattern2, code2, code, typee)
 	}
 
 	return url

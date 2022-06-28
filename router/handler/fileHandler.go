@@ -13,20 +13,22 @@ import (
 )
 
 func InitFileHandler(group *gin.RouterGroup) {
-	group.GET("/cover/:code/:type", func(c *gin.Context) {
+	fileGroup := group.Group("file")
+
+	fileGroup.GET("/cover/:code/:type", func(c *gin.Context) {
 		imgPath := filepath.Join(global.DataDir, "imgs",
 			filepath.Base(koe.GetImgUrl(c.Param("code"), c.Param("type"))))
 		logrus.Infof("查找图片: %s", imgPath)
 		c.File(imgPath)
 	})
 
-	group.GET("/lrc/:code/:uuid", func(c *gin.Context) {
+	fileGroup.GET("/lrc/:code/:uuid", func(c *gin.Context) {
 		koeService := service.NewService()
 		fileUUID := koeService.GetLrcFromAudioUUID(c.Param("code"), utils.Str2Num[uint32](c.Param("uuid")))
 		c.String(http.StatusOK, utils.Any2Str(fileUUID))
 	})
 
-	group.GET("/lrcs/:code", func(c *gin.Context) {
+	fileGroup.GET("/lrcs/:code", func(c *gin.Context) {
 		koeService := service.NewService()
 		nodes := koeService.GetLrcsFromAudioUUID(c.Param("code"))
 
@@ -35,7 +37,7 @@ func InitFileHandler(group *gin.RouterGroup) {
 		}))
 	})
 
-	group.GET("/:uuid", func(c *gin.Context) {
+	fileGroup.GET("/:uuid", func(c *gin.Context) {
 		filePath := service.NewService().GetFileFromUUID(utils.Str2Num[uint32](c.Param("uuid")))
 		logrus.Infof("查找文件: %s", filePath)
 		c.File(filePath)
