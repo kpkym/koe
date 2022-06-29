@@ -25,3 +25,8 @@ func Init() *gorm.DB {
 	db.AutoMigrate(&domain.Settings{})
 	return db
 }
+
+func SelectGroupBy(g *gorm.DB, category string) {
+	g.Select(fmt.Sprintf("json_array_elements(%s::json) #>> '{}' name, COUNT(1) count", category)).
+		Group("name").Order("count DESC")
+}

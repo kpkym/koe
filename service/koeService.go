@@ -2,6 +2,7 @@ package service
 
 import (
 	"fmt"
+	dbf "github.com/kpkym/koe/cmd/web/config/db"
 	"github.com/kpkym/koe/dao/cache"
 	"github.com/kpkym/koe/dao/db"
 	"github.com/kpkym/koe/model/domain"
@@ -10,6 +11,7 @@ import (
 	"github.com/kpkym/koe/utils"
 	"github.com/kpkym/koe/utils/koe"
 	"github.com/sirupsen/logrus"
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 	"path/filepath"
 )
@@ -28,7 +30,7 @@ func (s *service) WorkPage(pageRequest dto.PageRequest, category, content string
 		case "circle":
 			db.Where(fmt.Sprintf("%s = ?", category), content)
 		case "vas", "tags":
-			db.Joins(fmt.Sprintf("join json_each(%s) j", category)).Where("j.value = ?", content)
+			db.Where(datatypes.JSONQuery(category).HasKey(content))
 		}
 	}
 
@@ -50,9 +52,7 @@ func (s *service) Labels(category string) *[]dto.LabelResponse {
 		switch category {
 		case "vas", "tags":
 			fn = func(g *gorm.DB) {
-				g.Select("j.value name, COUNT(1) count").
-					Joins(fmt.Sprintf("join json_each(%s) j", category)).
-					Group("j.value").Order("count DESC")
+				dbf.SelectGroupBy(g, category)
 			}
 		default:
 			fn = func(g *gorm.DB) {

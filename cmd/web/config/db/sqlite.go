@@ -3,6 +3,7 @@
 package db
 
 import (
+	"fmt"
 	"github.com/kpkym/koe/global"
 	"github.com/kpkym/koe/model/domain"
 	"github.com/kpkym/koe/utils"
@@ -20,4 +21,10 @@ func Init() *gorm.DB {
 	db.AutoMigrate(&domain.WorkDomain{})
 	db.AutoMigrate(&domain.Settings{})
 	return db
+}
+
+func SelectGroupBy(g *gorm.DB, category string) {
+	g.Select("j.value name, COUNT(1) count").
+		Joins(fmt.Sprintf("join json_each(%s) j", category)).
+		Group("j.value").Order("count DESC")
 }

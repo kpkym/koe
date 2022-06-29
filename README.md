@@ -24,6 +24,6 @@
 - [ ] 去除IgnoreErr方法
 - [x] 评价接口
 - [x] 设置接口
-- [ ] 移除SQLite改成PostgreSQL
+- [x] SQLite, PostgreSQL支持
 - [ ] Docker编译构建镜像
 - [ ] Drone CI
