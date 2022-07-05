@@ -25,5 +25,5 @@
 - [x] 评价接口
 - [x] 设置接口
 - [x] SQLite, PostgreSQL支持
-- [ ] Docker编译构建镜像
+- [x] Docker编译构建镜像
 - [ ] Drone CI
