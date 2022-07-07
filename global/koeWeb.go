@@ -8,7 +8,8 @@ type Config struct {
 }
 
 type CommonConfig struct {
-	Port int `mapstructure:"port"`
+	Port    int    `mapstructure:"port"`
+	DataDir string `mapstructure:"datadir"`
 }
 
 type FixConfig struct {

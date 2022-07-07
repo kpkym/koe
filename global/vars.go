@@ -12,6 +12,9 @@ var (
 	}(), "data")
 )
 
-func init() {
+func SetDataDir(dataDir string) {
+	if dataDir != "" {
+		DataDir = dataDir
+	}
 	os.MkdirAll(DataDir, os.ModePerm)
 }

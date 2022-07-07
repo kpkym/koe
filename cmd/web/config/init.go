@@ -17,6 +17,7 @@ func Init(configFile string) {
 		PostgresqlConfig: utils.GetTomlConfig[global.PostgresqlConfig](configString, "postgresql"),
 	})
 
+	global.SetDataDir(global.GetServiceContext().Config.CommonConfig.DataDir)
 	global.AddDB(db.Init())
 	global.AddSettings(loadSettingsFromDB())
 }
