@@ -26,4 +26,4 @@
 - [x] 设置接口
 - [x] SQLite, PostgreSQL支持
 - [x] Docker编译构建镜像
-- [ ] Drone CI
+- [x] Drone CI
